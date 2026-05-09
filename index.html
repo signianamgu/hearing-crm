@@ -2084,8 +2084,8 @@ function showModal(idx){
   document.getElementById('modal-bd').innerHTML=`
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)">
       <div style="position:relative;flex-shrink:0;cursor:pointer" onclick="openPhotoUpload(${idx})" title="사진 변경">
-        ${c.photo ? '<img src="'+c.photo+'" style="width:54px;height:54px;border-radius:50%;object-fit:cover">' : '<div style="width:54px;height:54px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700">'+c.name.slice(0,2)+'</div>'}
-        <div style="position:absolute;bottom:0;right:0;width:18px;height:18px;background:var(--accent2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid #fff">📷</div>
+        ${c.photo ? '<img src="'+c.photo+'" style="width:100px;height:130px;border-radius:8px;object-fit:cover;border:2px solid var(--border2);box-shadow:var(--shadow2)">' : '<div style="width:100px;height:130px;border-radius:8px;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;border:2px dashed var(--border2)">'+c.name.slice(0,2)+'</div>'}
+        <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--accent2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid #fff;box-shadow:var(--shadow)">📷</div>
       </div>
       <div style="flex:1">
         <div style="font-size:18px;font-weight:700">${c.name}</div>
