@@ -3233,7 +3233,7 @@ function renderCustMap(){
       var textColor = getRegionTextColor(cnt);
       var stroke = cnt>0 ? '#40916c' : '#c8c7be';
       var strokeW = cnt>0 ? '1.5' : '1';
-      svgHTML += '<g onclick="showMapCustList(''+regionName+'')" style="cursor:'+(cnt>0?'pointer':'default')+'" >';
+      svgHTML += '<g onclick="showMapCustList(\''+regionName+'\')" style="cursor:'+(cnt>0?'pointer':'default')+'" >';
       svgHTML += '<path d="'+r.path+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+strokeW+'" />';
       // 지역명
       var shortName = regionName.replace('대구 ','').replace('광역시','').replace('특별시','');
@@ -3260,7 +3260,7 @@ function renderCustMap(){
     sorted.forEach(function(entry){
       var r=entry[0], cnt=entry[1];
       var pct=Math.round(cnt/total*100);
-      html+='<div onclick="showMapCustList2(''+r+'')" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)">';
+      html+='<div onclick="showMapCustList2(\''+r+'\')" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)">';
       html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:13px;font-weight:600;flex:1">'+r+'</span><span style="font-size:12px;font-weight:700;color:var(--accent)">'+cnt+'명</span><span style="font-size:11px;color:var(--text3)">'+pct+'%</span></div>';
       html+='<div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:var(--accent2);border-radius:3px"></div></div></div>';
     });
