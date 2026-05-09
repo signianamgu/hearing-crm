@@ -3966,7 +3966,7 @@ function renderCalendar(){
     for(var mi=0;mi<maxMDots;mi++) dots+='<div style="width:6px;height:6px;border-radius:50%;background:'+typeColors[manItems[mi].type||'store']+';flex-shrink:0"></div>';
     var manLabel='';
     if(manItems.length>0) manLabel='<div style="font-size:9px;background:'+typeColors[manItems[0].type||'store']+'22;color:'+typeColors[manItems[0].type||'store']+';border-radius:3px;padding:1px 4px;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+(manItems[0].time?manItems[0].time+' ':'')+manItems[0].title+'</div>';
-    html+='<div onclick="selectCalDate('+JSON.stringify(ds)+')" style="min-height:90px;background:'+(isSel?'var(--accent-light)':isToday?'#f0fdf4':'var(--bg2)')+';border:1px solid '+(isSel?'var(--accent2)':isToday?'var(--accent2)':'var(--border)')+';border-radius:var(--r3);padding:6px;cursor:pointer;transition:all .1s">';
+    html+='<div onclick="selectCalDate(\''+ds+'\')" style="min-height:90px;background:'+(isSel?'var(--accent-light)':isToday?'#f0fdf4':'var(--bg2)')+';border:1px solid '+(isSel?'var(--accent2)':isToday?'var(--accent2)':'var(--border)')+';border-radius:var(--r3);padding:6px;cursor:pointer;transition:all .1s">';
     html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px"><span style="font-size:13px;font-weight:'+(isToday?700:500)+';color:'+txtColor+'">'+d+'</span>'+(total>0?'<span style="font-size:10px;font-weight:700;color:var(--accent)">'+total+'</span>':'')+'</div>';
     html+='<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px">'+dots+'</div>'+manLabel;
     html+='</div>';
