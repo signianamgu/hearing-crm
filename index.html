@@ -3209,7 +3209,6 @@ function renderCustMap(){
     return true;
   });
 
-  // 지역별 카운트
   var regionCount = {};
   list.forEach(function(c){
     var r = c.region||'지역미등록';
@@ -3220,11 +3219,20 @@ function renderCustMap(){
   var badge = document.getElementById('map-total-badge');
   if(badge) badge.textContent = '총 '+total+'명';
 
-  // SVG 렌더링
-  var svgContainer = document.getElementById('region-svg-wrap');
-  if(svgContainer){
-    var svgHTML = '<svg viewBox="0 0 500 420" style="width:100%;max-height:520px" xmlns="http://www.w3.org/2000/svg">';
-    svgHTML += '<rect width="500" height="420" fill="#eaf4fb" rx="8"/>';
+  // SVG를 DOM API로 직접 생성
+  var wrap = document.getElementById('region-svg-wrap');
+  if(wrap){
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox','0 0 500 420');
+    svg.setAttribute('style','width:100%;max-height:520px');
+
+    // 배경
+    var bg = document.createElementNS(NS,'rect');
+    bg.setAttribute('width','500'); bg.setAttribute('height','420');
+    bg.setAttribute('fill','#eaf4fb'); bg.setAttribute('rx','8');
+    svg.appendChild(bg);
+
     // 각 지역 그리기
     Object.keys(MAP_REGIONS).forEach(function(regionName){
       var r = MAP_REGIONS[regionName];
@@ -3232,24 +3240,60 @@ function renderCustMap(){
       var fill = getRegionColor(cnt);
       var textColor = getRegionTextColor(cnt);
       var stroke = cnt>0 ? '#40916c' : '#c8c7be';
-      var strokeW = cnt>0 ? '1.5' : '1';
-      svgHTML += '<g onclick="showMapCustList(\''+regionName+'\')" style="cursor:'+(cnt>0?'pointer':'default')+'" >';
-      svgHTML += '<path d="'+r.path+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+strokeW+'" />';
-      // 지역명
-      var shortName = regionName.replace('대구 ','').replace('광역시','').replace('특별시','');
-      svgHTML += '<text x="'+r.cx+'" y="'+(r.cy-2)+'" text-anchor="middle" font-size="8.5" font-weight="600" fill="'+textColor+'" style="pointer-events:none">'+shortName+'</text>';
+
+      var g = document.createElementNS(NS,'g');
+      g.style.cursor = cnt>0 ? 'pointer' : 'default';
       if(cnt>0){
-        svgHTML += '<text x="'+r.cx+'" y="'+(r.cy+9)+'" text-anchor="middle" font-size="9" font-weight="700" fill="'+textColor+'" style="pointer-events:none">'+cnt+'명</text>';
+        g.addEventListener('click', (function(rn){ return function(){ showMapCustList(rn); }; })(regionName));
       }
-      svgHTML += '</g>';
+
+      var path = document.createElementNS(NS,'path');
+      path.setAttribute('d', r.path);
+      path.setAttribute('fill', fill);
+      path.setAttribute('stroke', stroke);
+      path.setAttribute('stroke-width', cnt>0?'1.5':'1');
+      g.appendChild(path);
+
+      var shortName = regionName.replace('대구 ','').replace('광역시','');
+      var t1 = document.createElementNS(NS,'text');
+      t1.setAttribute('x', r.cx); t1.setAttribute('y', r.cy-2);
+      t1.setAttribute('text-anchor','middle');
+      t1.setAttribute('font-size','9'); t1.setAttribute('font-weight','600');
+      t1.setAttribute('fill', textColor);
+      t1.setAttribute('style','pointer-events:none');
+      t1.textContent = shortName;
+      g.appendChild(t1);
+
+      if(cnt>0){
+        var t2 = document.createElementNS(NS,'text');
+        t2.setAttribute('x', r.cx); t2.setAttribute('y', r.cy+9);
+        t2.setAttribute('text-anchor','middle');
+        t2.setAttribute('font-size','9'); t2.setAttribute('font-weight','700');
+        t2.setAttribute('fill', textColor);
+        t2.setAttribute('style','pointer-events:none');
+        t2.textContent = cnt+'명';
+        g.appendChild(t2);
+      }
+      svg.appendChild(g);
     });
-    // 지역미등록 있으면 표시
+
+    // 지역미등록 표시
     if(regionCount['지역미등록']){
-      svgHTML += '<rect x="10" y="10" width="80" height="22" rx="4" fill="#e2e1d8"/>';
-      svgHTML += '<text x="50" y="25" text-anchor="middle" font-size="10" fill="#6b6a62">미등록: '+regionCount['지역미등록']+'명</text>';
+      var rg = document.createElementNS(NS,'rect');
+      rg.setAttribute('x','10'); rg.setAttribute('y','10');
+      rg.setAttribute('width','80'); rg.setAttribute('height','22');
+      rg.setAttribute('rx','4'); rg.setAttribute('fill','#e2e1d8');
+      svg.appendChild(rg);
+      var rt = document.createElementNS(NS,'text');
+      rt.setAttribute('x','50'); rt.setAttribute('y','25');
+      rt.setAttribute('text-anchor','middle');
+      rt.setAttribute('font-size','10'); rt.setAttribute('fill','#6b6a62');
+      rt.textContent = '미등록: '+regionCount['지역미등록']+'명';
+      svg.appendChild(rt);
     }
-    svgHTML += '</svg>';
-    svgContainer.innerHTML = svgHTML;
+
+    wrap.innerHTML = '';
+    wrap.appendChild(svg);
   }
 
   // 통계 뷰 렌더링
@@ -3261,7 +3305,7 @@ function renderCustMap(){
     sorted.forEach(function(entry){
       var r=entry[0], cnt=entry[1];
       var pct=Math.round(cnt/total*100);
-      html+='<div onclick="showMapCustList2(\''+r+'\')" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)">';
+      html+='<div onclick="showMapCustList2(''+r+'')" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)">';
       html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:13px;font-weight:600;flex:1">'+r+'</span><span style="font-size:12px;font-weight:700;color:var(--accent)">'+cnt+'명</span><span style="font-size:11px;color:var(--text3)">'+pct+'%</span></div>';
       html+='<div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:var(--accent2);border-radius:3px"></div></div></div>';
     });
