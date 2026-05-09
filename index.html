@@ -3225,35 +3225,44 @@ function showMapCustList(region){
   var list = DB.c.filter(function(c){ return (c.region||'지역미등록')===region; });
   var titleEl = document.getElementById('map-cust-title');
   if(titleEl) titleEl.textContent = region+' ('+list.length+'명)';
-
   var el = document.getElementById('map-cust-list');
   if(!el) return;
-
+  el.innerHTML = '';
   if(!list.length){
-    el.innerHTML='<div class="empty" style="padding:16px"><span style="font-size:12px;color:var(--text3)">해당 지역 고객 없음</span></div>';
+    el.innerHTML='<div class="empty" style="padding:16px"><span style="font-size:12px;color:#a8a79f">해당 지역 고객 없음</span></div>';
     return;
   }
-
-  var html = '';
   list.forEach(function(c){
     var i = DB.c.indexOf(c);
     var col = ac(c.name);
     var typeLabel = c.type==='trial'?'체험':({general:'일반',gov:'정부지원',both:'병행','new-deaf':'등급신청'}[c.purchaseType||'general']||'구매');
     var typeBadge = c.type==='trial'?'b-teal':'b-green';
-    html += '<div onclick="showModal('+i+')" style="display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">'+
-      (c.photo
-        ? '<img src="'+c.photo+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0">'
-        : '<div style="width:36px;height:36px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+c.name.slice(0,2)+'</div>')+
-      '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:13px;font-weight:600">'+c.name+'</div>'+
-        '<div style="font-size:11px;color:var(--text2);margin-top:2px">'+c.phone+'</div>'+
-        '<div style="margin-top:3px"><span class="badge '+typeBadge+'" style="font-size:10px">'+typeLabel+'</span></div>'+
-      '</div>'+
-      '<span style="font-size:10px;color:var(--text3)">&#9656;</span>'+
-    '</div>';
+    var div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid #e2e1d8;cursor:pointer';
+    div.addEventListener('mouseover',function(){this.style.background='#f0efe9';});
+    div.addEventListener('mouseout', function(){this.style.background='';});
+    div.addEventListener('click',(function(idx){return function(){showModal(idx);};})(i));
+    var avatar = document.createElement('div');
+    if(c.photo){
+      avatar.innerHTML = '<img src="'+c.photo+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0">';
+    } else {
+      avatar.style.cssText = 'width:36px;height:36px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0';
+      avatar.textContent = c.name.slice(0,2);
+    }
+    var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0';
+    info.innerHTML =
+      '<div style="font-size:13px;font-weight:600">'+c.name+'</div>'+
+      '<div style="font-size:11px;color:#6b6a62;margin-top:2px">'+c.phone+'</div>'+
+      '<div style="margin-top:3px"><span class="badge '+typeBadge+'" style="font-size:10px">'+typeLabel+'</span></div>';
+    var arrow = document.createElement('span');
+    arrow.style.cssText = 'font-size:10px;color:#a8a79f';
+    arrow.textContent = '▶';
+    div.appendChild(avatar);
+    div.appendChild(info);
+    div.appendChild(arrow);
+    el.appendChild(div);
   });
-
-  el.innerHTML = html;
 }
 
 // ========== DASHBOARD VISIT TRACKING (#1) ==========
