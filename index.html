@@ -1085,7 +1085,7 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
 <!-- ============ CUSTOMER MAP ============ -->
 <div class="page" id="page-custmap">
   <div class="topbar">
-    <div class="topbar-left"><div class="page-title">고객 지도</div><div class="page-sub">지역별 고객 분포 현황</div></div>
+    <div class="topbar-left"><div class="page-title">고객 지도</div><div class="page-sub">대구·경북·경남 지역별 고객 분포</div></div>
     <div class="topbar-right">
       <select class="form-input" id="map-filter" style="width:150px" onchange="renderCustMap()">
         <option value="">전체 고객</option>
@@ -1093,20 +1093,48 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
         <option value="trial">체험 고객</option>
         <option value="gov">정부지원 고객</option>
       </select>
+      <div style="display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r3);padding:3px">
+        <button class="tab-btn active" id="map-view-map" onclick="switchMapView('map')" style="font-size:11px;padding:4px 10px">🗺 지도</button>
+        <button class="tab-btn" id="map-view-stat" onclick="switchMapView('stat')" style="font-size:11px;padding:4px 10px">📊 통계</button>
+      </div>
     </div>
   </div>
   <div class="content">
-    <div style="display:grid;grid-template-columns:1fr 300px;gap:16px">
-      <!-- 지역별 현황표 -->
-      <div class="card">
-        <div class="card-header"><span class="card-title">지역별 고객 현황</span></div>
-        <div class="card-body" id="map-region-list"></div>
+    <!-- 지도 뷰 -->
+    <div id="map-view-map-panel">
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
+        <div class="card">
+          <div class="card-header"><span class="card-title">대구·경북·경남 고객 분포</span><span id="map-total-badge" class="badge b-green"></span></div>
+          <div class="card-body" style="padding:12px">
+            <svg id="region-svg" viewBox="0 0 500 580" style="width:100%;max-height:520px" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;font-size:11px;color:var(--text2)">
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;background:#d8f3dc;border:1px solid #a5d6a7;border-radius:2px;display:inline-block"></span>1~2명</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;background:#74c69d;border-radius:2px;display:inline-block"></span>3~5명</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;background:#40916c;border-radius:2px;display:inline-block"></span>6~9명</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;background:#1b4332;border-radius:2px;display:inline-block"></span>10명+</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="height:fit-content">
+          <div class="card-header"><span class="card-title" id="map-cust-title">지역 고객 목록</span></div>
+          <div class="card-body" id="map-cust-list" style="padding:8px">
+            <div class="empty" style="padding:16px"><span style="font-size:12px;color:var(--text3)">지역을 클릭하세요</span></div>
+          </div>
+        </div>
       </div>
-      <!-- 고객 목록 -->
-      <div class="card" style="height:fit-content">
-        <div class="card-header"><span class="card-title">지역 고객 목록</span></div>
-        <div class="card-body" id="map-cust-list" style="padding:8px">
-          <div class="empty" style="padding:16px"><span style="font-size:12px;color:var(--text3)">지역을 클릭하세요</span></div>
+    </div>
+    <!-- 통계 뷰 -->
+    <div id="map-view-stat-panel" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:16px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">지역별 고객 현황</span></div>
+          <div class="card-body" id="map-region-list"></div>
+        </div>
+        <div class="card" style="height:fit-content">
+          <div class="card-header"><span class="card-title" id="map-cust-title2">지역 고객 목록</span></div>
+          <div class="card-body" id="map-cust-list2" style="padding:8px">
+            <div class="empty" style="padding:16px"><span style="font-size:12px;color:var(--text3)">지역을 클릭하세요</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -3114,50 +3142,161 @@ function updateTrialStep(idx, step, e){
   toast(`${DB.c[idx].name}님 → ${TRIAL_STEP_LABELS[step]} 단계로 이동 ✅`);
 }
 
-// ========== CUSTOMER MAP (#2) ==========
+// ========== CUSTOMER MAP ==========
+// 지역명 → SVG path 데이터 (대구·경북·경남 주요 지역 간략화)
+var MAP_REGIONS = {
+  // 대구광역시 구/군
+  '대구 중구':    {path:'M220,195 L235,188 L245,195 L240,208 L225,210 Z', cx:233, cy:200},
+  '대구 동구':    {path:'M245,175 L270,168 L280,178 L275,198 L255,205 L245,195 Z', cx:263, cy:188},
+  '대구 서구':    {path:'M200,190 L220,185 L220,195 L225,210 L205,215 L198,205 Z', cx:212, cy:202},
+  '대구 남구':    {path:'M215,210 L240,208 L242,222 L228,228 L215,222 Z', cx:229, cy:218},
+  '대구 북구':    {path:'M205,170 L235,162 L245,175 L235,188 L220,195 L205,185 Z', cx:225, cy:178},
+  '대구 수성구':  {path:'M240,195 L260,192 L265,210 L255,220 L242,222 L240,208 Z', cx:252, cy:207},
+  '대구 달서구':  {path:'M198,205 L215,210 L215,222 L205,232 L192,225 L190,212 Z', cx:204, cy:219},
+  '대구 달성군':  {path:'M185,222 L205,232 L210,252 L195,265 L175,255 L170,238 Z', cx:192, cy:245},
+  // 경북
+  '경산시':  {path:'M255,220 L278,215 L285,232 L270,245 L252,240 L250,228 Z', cx:268, cy:232},
+  '영천시':  {path:'M278,200 L305,195 L312,215 L295,228 L278,225 L275,210 Z', cx:294, cy:212},
+  '청도군':  {path:'M265,242 L288,238 L295,258 L278,268 L260,260 Z', cx:278, cy:253},
+  '칠곡군':  {path:'M205,155 L232,148 L238,168 L220,178 L205,170 Z', cx:222, cy:163},
+  '고령군':  {path:'M178,248 L198,242 L205,258 L190,270 L175,262 Z', cx:191, cy:257},
+  '성주군':  {path:'M162,228 L185,222 L192,240 L178,252 L160,244 Z', cx:177, cy:237},
+  '군위군':  {path:'M225,138 L255,132 L262,152 L242,162 L225,155 Z', cx:244, cy:147},
+  '구미시':  {path:'M178,155 L205,148 L210,168 L195,178 L175,172 Z', cx:193, cy:163},
+  '김천시':  {path:'M148,168 L178,162 L182,182 L165,192 L145,185 Z', cx:165, cy:178},
+  '안동시':  {path:'M268,128 L305,120 L315,142 L295,155 L265,148 Z', cx:292, cy:137},
+  '포항시':  {path:'M340,148 L375,142 L382,168 L362,182 L335,172 Z', cx:360, cy:162},
+  '경주시':  {path:'M318,182 L348,175 L355,200 L335,215 L312,208 Z', cx:335, cy:195},
+  '상주시':  {path:'M195,125 L228,118 L235,140 L215,152 L192,145 Z', cx:215, cy:133},
+  '문경시':  {path:'M215,98 L248,92 L255,115 L232,125 L212,118 Z', cx:234, cy:108},
+  '예천군':  {path:'M245,108 L278,102 L285,125 L262,135 L242,128 Z', cx:265, cy:117},
+  '의성군':  {path:'M272,138 L308,132 L315,155 L292,165 L268,158 Z', cx:292, cy:148},
+  '봉화군':  {path:'M285,88 L325,82 L332,108 L308,118 L282,112 Z', cx:308, cy:98},
+  '울진군':  {path:'M355,98 L392,92 L398,122 L372,135 L350,125 Z', cx:375, cy:110},
+  // 경남
+  '합천군':  {path:'M172,272 L200,265 L208,285 L190,298 L168,290 Z', cx:190, cy:282},
+  '창녕군':  {path:'M225,262 L252,255 L258,275 L240,288 L220,280 Z', cx:240, cy:272},
+  '거창군':  {path:'M145,258 L172,252 L178,272 L160,283 L142,275 Z', cx:161, cy:268},
+};
+
+function getRegionColor(cnt) {
+  if(!cnt||cnt===0) return '#f0efe9';
+  if(cnt<=2)  return '#d8f3dc';
+  if(cnt<=5)  return '#74c69d';
+  if(cnt<=9)  return '#40916c';
+  return '#1b4332';
+}
+function getRegionTextColor(cnt) {
+  if(!cnt||cnt<=2) return '#1b4332';
+  return '#fff';
+}
+
+function switchMapView(v){
+  document.getElementById('map-view-map-panel').style.display = v==='map'?'block':'none';
+  document.getElementById('map-view-stat-panel').style.display = v==='stat'?'block':'none';
+  document.getElementById('map-view-map').classList.toggle('active', v==='map');
+  document.getElementById('map-view-stat').classList.toggle('active', v==='stat');
+}
+
 function renderCustMap(){
-  const f=document.getElementById('map-filter').value;
-  let list=DB.c.filter(c=>!f||(f==='trial'?c.type==='trial':f==='purchase'?c.type==='purchase':f==='gov'?!!c.gov:true));
-  const regions={};
-  list.forEach(c=>{
-    const r=c.region||'지역미등록';
-    if(!regions[r]) regions[r]=[];
-    regions[r].push(c);
+  var f = document.getElementById('map-filter').value;
+  var list = DB.c.filter(function(c){
+    if(!f) return true;
+    if(f==='trial') return c.type==='trial';
+    if(f==='purchase') return c.type==='purchase';
+    if(f==='gov') return !!c.gov;
+    return true;
   });
-  const sorted=Object.entries(regions).sort((a,b)=>b[1].length-a[1].length);
-  const total=list.length;
-  const el=document.getElementById('map-region-list');
-  if(!sorted.length){el.innerHTML='<div class="empty">등록된 고객이 없습니다</div>';return;}
-  el.innerHTML=`<div style="margin-bottom:12px;font-size:12px;color:var(--text2)">총 ${total}명 · ${sorted.length}개 지역</div>`+
-  sorted.map(([r,cs])=>{
-    const pct=Math.round(cs.length/total*100);
-    return `<div onclick="showMapCustList('${r}')" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-        <span style="font-size:13px;font-weight:600;flex:1">${r}</span>
-        <span style="font-size:12px;font-weight:700;color:var(--accent)">${cs.length}명</span>
-        <span style="font-size:11px;color:var(--text3)">${pct}%</span>
-      </div>
-      <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden">
-        <div style="height:100%;width:${pct}%;background:var(--accent2);border-radius:3px;transition:width .3s"></div>
-      </div>
-    </div>`;
-  }).join('');
+
+  // 지역별 카운트
+  var regionCount = {};
+  list.forEach(function(c){
+    var r = c.region||'지역미등록';
+    regionCount[r] = (regionCount[r]||0) + 1;
+  });
+
+  var total = list.length;
+  var badge = document.getElementById('map-total-badge');
+  if(badge) badge.textContent = '총 '+total+'명';
+
+  // SVG 렌더링
+  var svg = document.getElementById('region-svg');
+  if(svg){
+    var svgHTML = '';
+    // 배경
+    svgHTML += '<rect width="500" height="580" fill="#eaf4fb" rx="8"/>';
+    // 각 지역 그리기
+    Object.keys(MAP_REGIONS).forEach(function(regionName){
+      var r = MAP_REGIONS[regionName];
+      var cnt = regionCount[regionName]||0;
+      var fill = getRegionColor(cnt);
+      var textColor = getRegionTextColor(cnt);
+      var stroke = cnt>0 ? '#40916c' : '#c8c7be';
+      var strokeW = cnt>0 ? '1.5' : '1';
+      svgHTML += '<g onclick="showMapCustList(''+regionName+'')" style="cursor:'+(cnt>0?'pointer':'default')+'" >';
+      svgHTML += '<path d="'+r.path+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+strokeW+'" />';
+      // 지역명
+      var shortName = regionName.replace('대구 ','').replace('광역시','').replace('특별시','');
+      svgHTML += '<text x="'+r.cx+'" y="'+(r.cy-2)+'" text-anchor="middle" font-size="8.5" font-weight="600" fill="'+textColor+'" style="pointer-events:none">'+shortName+'</text>';
+      if(cnt>0){
+        svgHTML += '<text x="'+r.cx+'" y="'+(r.cy+9)+'" text-anchor="middle" font-size="9" font-weight="700" fill="'+textColor+'" style="pointer-events:none">'+cnt+'명</text>';
+      }
+      svgHTML += '</g>';
+    });
+    // 지역미등록 있으면 표시
+    if(regionCount['지역미등록']){
+      svgHTML += '<rect x="10" y="10" width="80" height="22" rx="4" fill="#e2e1d8"/>';
+      svgHTML += '<text x="50" y="25" text-anchor="middle" font-size="10" fill="#6b6a62">미등록: '+regionCount['지역미등록']+'명</text>';
+    }
+    svg.innerHTML = svgHTML;
+  }
+
+  // 통계 뷰 렌더링
+  var sorted = Object.entries(regionCount).sort(function(a,b){return b[1]-a[1];});
+  var el = document.getElementById('map-region-list');
+  if(el){
+    if(!sorted.length){el.innerHTML='<div class="empty">등록된 고객이 없습니다</div>';return;}
+    var html = '<div style="margin-bottom:12px;font-size:12px;color:var(--text2)">총 '+total+'명 · '+sorted.length+'개 지역</div>';
+    sorted.forEach(function(entry){
+      var r=entry[0], cnt=entry[1];
+      var pct=Math.round(cnt/total*100);
+      html+='<div onclick="showMapCustList2(''+r+'')" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)">';
+      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:13px;font-weight:600;flex:1">'+r+'</span><span style="font-size:12px;font-weight:700;color:var(--accent)">'+cnt+'명</span><span style="font-size:11px;color:var(--text3)">'+pct+'%</span></div>';
+      html+='<div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:var(--accent2);border-radius:3px"></div></div></div>';
+    });
+    el.innerHTML = html;
+  }
 }
 
 function showMapCustList(region){
-  const list=DB.c.filter(c=>(c.region||'지역미등록')===region);
-  const el=document.getElementById('map-cust-list');
-  el.innerHTML=`<div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text)">${region} · ${list.length}명</div>`+
-  list.map(c=>{
-    const i=DB.c.indexOf(c); const col=ac(c.name);
-    return `<div onclick="showModal(${i})" style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer">
-      <div style="width:28px;height:28px;border-radius:50%;background:${col}18;color:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${c.name.slice(0,2)}</div>
-      <div style="min-width:0">
-        <div style="font-size:12px;font-weight:600">${c.name}</div>
-        <div style="font-size:10px;color:var(--text2)">${c.phone}</div>
-      </div>
-    </div>`;
-  }).join('');
+  var list = DB.c.filter(function(c){return (c.region||'지역미등록')===region;});
+  var html = '<div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text)">'+region+' · '+list.length+'명</div>';
+  if(!list.length){ html += '<div class="empty" style="padding:12px"><span style="font-size:12px;color:var(--text3)">해당 고객 없음</span></div>'; }
+  list.forEach(function(c){
+    var i=DB.c.indexOf(c); var col=ac(c.name);
+    html+='<div onclick="showModal('+i+')" style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer">';
+    html+='<div style="width:28px;height:28px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+c.name.slice(0,2)+'</div>';
+    html+='<div><div style="font-size:12px;font-weight:600">'+c.name+'</div><div style="font-size:10px;color:var(--text2)">'+c.phone+'</div></div></div>';
+  });
+  var el = document.getElementById('map-cust-list');
+  if(el) el.innerHTML = html;
+  var title = document.getElementById('map-cust-title');
+  if(title) title.textContent = region+' ('+list.length+'명)';
+}
+
+function showMapCustList2(region){
+  var list = DB.c.filter(function(c){return (c.region||'지역미등록')===region;});
+  var html = '<div style="font-size:12px;font-weight:700;margin-bottom:8px">'+region+' · '+list.length+'명</div>';
+  list.forEach(function(c){
+    var i=DB.c.indexOf(c); var col=ac(c.name);
+    html+='<div onclick="showModal('+i+')" style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer">';
+    html+='<div style="width:28px;height:28px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+c.name.slice(0,2)+'</div>';
+    html+='<div><div style="font-size:12px;font-weight:600">'+c.name+'</div><div style="font-size:10px;color:var(--text2)">'+c.phone+'</div></div></div>';
+  });
+  var el = document.getElementById('map-cust-list2');
+  if(el) el.innerHTML = html;
+  var title = document.getElementById('map-cust-title2');
+  if(title) title.textContent = region+' ('+list.length+'명)';
 }
 
 // ========== DASHBOARD VISIT TRACKING (#1) ==========
