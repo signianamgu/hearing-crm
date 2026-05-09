@@ -1885,7 +1885,7 @@ function renderCustomers(){
     const slabel=c.type==='trial'?'체험중':ptypeLabel;
     const postDone=c.postFit?Object.values(c.postFit).filter(v=>v.done).length:0;
     return `<div class="cust-row" style="${hasScheduleToday(c)?'border-left:3px solid var(--accent2);padding-left:10px':''}">
-      <div class="cust-avatar" style="background:${col}18;color:${col}">${c.name.slice(0,2)}</div>
+      <div class="cust-avatar" style="background:${col}18;color:${col};overflow:hidden;padding:0">${c.photo?`<img src="${c.photo}" style="width:38px;height:38px;object-fit:cover;border-radius:50%">`:c.name.slice(0,2)}</div>
       <div class="cust-info">
         <div class="cust-name">${c.name} <span style="font-weight:400;color:var(--text2);font-size:12px">${c.phone}</span>${hasScheduleToday(c)?'<span class="badge b-green" style="font-size:10px;margin-left:6px">오늘 연락</span>':''}</div>
         <div class="cust-sub">${c.model||'모델미입력'} · ${c.type==='trial'?`체험 ${fmtD(c.trialStart)}`:`구매 ${fmtD(c.buyDate)}`} · 담당: ${c.staff||'-'}${c.region?` · ${c.region}`:''}</div>
@@ -2083,7 +2083,10 @@ function showModal(idx){
   document.getElementById('modal-consult-btn').setAttribute('onclick','openConsultModal('+idx+')');
   document.getElementById('modal-bd').innerHTML=`
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)">
-      ${c.photo ? '<img src="'+c.photo+'" style="width:50px;height:50px;border-radius:50%;object-fit:cover;flex-shrink:0">' : '<div style="width:50px;height:50px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;flex-shrink:0">'+c.name.slice(0,2)+'</div>'}
+      <div style="position:relative;flex-shrink:0;cursor:pointer" onclick="openPhotoUpload(${idx})" title="사진 변경">
+        ${c.photo ? '<img src="'+c.photo+'" style="width:54px;height:54px;border-radius:50%;object-fit:cover">' : '<div style="width:54px;height:54px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700">'+c.name.slice(0,2)+'</div>'}
+        <div style="position:absolute;bottom:0;right:0;width:18px;height:18px;background:var(--accent2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid #fff">📷</div>
+      </div>
       <div style="flex:1">
         <div style="font-size:18px;font-weight:700">${c.name}</div>
         <div style="font-size:13px;color:var(--text2);margin-top:2px">${c.phone} ${c.birth?`· ${c.birth}`:''}</div>
@@ -2106,10 +2109,7 @@ function showModal(idx){
     ${histHTML}
     ${govHTML}
     ${asHTML}
-    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-      <button class="btn btn-sm" id="modal-photo-btn" onclick="openPhotoUpload(0)" style="font-size:11px">&#128247; 사진 등록</button>
-    </div>
-    ${c.photo ? '<div style="margin-bottom:14px"><img src="'+c.photo+'" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--border2)"> <button onclick="openPhotoUpload('+idx+')" class="btn btn-sm">사진 변경</button></div>' : ''}
+
     ${c.consultations&&c.consultations.length ? '<div class="section-label">최근 상담</div><div style="background:var(--bg3);border-radius:var(--r3);padding:10px 14px;margin-bottom:12px;border-left:3px solid var(--accent2)"><div style="font-size:11px;color:var(--text3);margin-bottom:3px">'+(c.consultations[c.consultations.length-1].date||'')+'</div><div style="font-size:13px;font-weight:500">'+(c.consultations[c.consultations.length-1].title||'')+'</div><div style="font-size:12px;color:var(--text2);margin-top:3px">'+(c.consultations[c.consultations.length-1].content||'').slice(0,80)+'</div></div>' : ''}
     <div class="section-label">관리 일정 타임라인</div>
     <div class="tl-wrap"><div class="tl-line"></div>${buildTLHTML(c,scheds,idx)}</div>`;
