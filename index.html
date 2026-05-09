@@ -3221,11 +3221,11 @@ function renderCustMap(){
   if(badge) badge.textContent = '총 '+total+'명';
 
   // SVG 렌더링
-  var svg = document.getElementById('region-svg');
-  if(svg){
-    var svgHTML = '';
+  var svgContainer = document.getElementById('region-svg');
+  if(svgContainer){
+    var svgHTML = '<svg id="region-svg-inner" viewBox="0 0 500 420" style="width:100%;max-height:520px" xmlns="http://www.w3.org/2000/svg">';
     // 배경
-    svgHTML += '<rect width="500" height="580" fill="#eaf4fb" rx="8"/>';
+    svgHTML += '<rect width="500" height="420" fill="#eaf4fb" rx="8"/>';
     // 각 지역 그리기
     Object.keys(MAP_REGIONS).forEach(function(regionName){
       var r = MAP_REGIONS[regionName];
@@ -3249,7 +3249,11 @@ function renderCustMap(){
       svgHTML += '<rect x="10" y="10" width="80" height="22" rx="4" fill="#e2e1d8"/>';
       svgHTML += '<text x="50" y="25" text-anchor="middle" font-size="10" fill="#6b6a62">미등록: '+regionCount['지역미등록']+'명</text>';
     }
-    svg.innerHTML = svgHTML;
+    svgHTML += '</svg>';
+    svgContainer.outerHTML = svgHTML;
+    // 새로 생성된 SVG에 이벤트 재바인딩
+    var newSvg = document.getElementById('region-svg-inner');
+    if(newSvg) newSvg.id = 'region-svg';
   }
 
   // 통계 뷰 렌더링
