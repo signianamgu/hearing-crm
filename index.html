@@ -3180,48 +3180,45 @@ function renderCustMap(){
     if(f==='gov') return !!c.gov;
     return true;
   });
-
   var regionCount = {};
   list.forEach(function(c){
     var r = c.region||'지역미등록';
     if(!regionCount[r]) regionCount[r]=[];
     regionCount[r].push(c);
   });
-
   var total = list.length;
   var badge = document.getElementById('map-total-badge');
   if(badge) badge.textContent = '총 '+total+'명';
-
   var sorted = Object.entries(regionCount).sort(function(a,b){return b[1].length-a[1].length;});
   var el = document.getElementById('map-region-list');
   if(!el) return;
-
+  el.innerHTML = '';
   if(!sorted.length){
     el.innerHTML='<div class="empty"><div class="empty-icon">📍</div>등록된 고객이 없습니다</div>';
     return;
   }
-
-  var html = '';
   sorted.forEach(function(entry){
     var regionName = entry[0];
     var custs = entry[1];
     var cnt = custs.length;
     var pct = total>0 ? Math.round(cnt/total*100) : 0;
-    var col = cnt>=10?'var(--accent)':cnt>=5?'var(--accent2)':cnt>=3?'#52b788':'var(--text2)';
-
-    html += '<div onclick="showMapCustList(\''+regionName+'\')" style="cursor:pointer;padding:12px 0;border-bottom:1px solid var(--border);transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">'+
+    var col = cnt>=10?'#2d6a4f':cnt>=5?'#40916c':cnt>=3?'#52b788':'#6b6a62';
+    var div = document.createElement('div');
+    div.style.cssText = 'cursor:pointer;padding:12px 0;border-bottom:1px solid #e2e1d8';
+    div.addEventListener('mouseover',function(){this.style.background='#f0efe9';});
+    div.addEventListener('mouseout', function(){this.style.background='';});
+    div.addEventListener('click',(function(rn){return function(){showMapCustList(rn);};})(regionName));
+    div.innerHTML =
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'+
         '<span style="font-size:13px;font-weight:600;flex:1">'+regionName+'</span>'+
         '<span style="font-size:14px;font-weight:700;color:'+col+'">'+cnt+'명</span>'+
-        '<span style="font-size:11px;color:var(--text3);min-width:32px;text-align:right">'+pct+'%</span>'+
+        '<span style="font-size:11px;color:#a8a79f;min-width:32px;text-align:right">'+pct+'%</span>'+
       '</div>'+
-      '<div style="height:8px;background:var(--bg4);border-radius:4px;overflow:hidden">'+
-        '<div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px;transition:width .3s"></div>'+
-      '</div>'+
-    '</div>';
+      '<div style="height:8px;background:#e8e7e0;border-radius:4px;overflow:hidden">'+
+        '<div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px"></div>'+
+      '</div>';
+    el.appendChild(div);
   });
-
-  el.innerHTML = html;
 }
 
 function showMapCustList(region){
