@@ -299,7 +299,6 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
     <div class="nav-item" onclick="showPage('inventory',this)"><span class="ni">📦</span>주문·재고 관리<span class="nav-badge warn" id="nb-inv">0</span></div>
     <div class="nav-item" onclick="showPage('custmap',this)"><span class="ni">🗺</span>고객 지도</div>
     <div class="nav-item" onclick="showPage('messages',this)"><span class="ni">💬</span>메시지 생성</div>
-    <div class="nav-item" onclick="showPage('custmap',this)"><span class="ni">🗺</span>고객 지도</div>
   </div>
   <div class="sidebar-footer">
     <div class="today-chip" id="today-chip"></div>
@@ -1148,34 +1147,7 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
   </div>
 </div>
 
-<!-- ============ CUSTMAP ============ -->
-<div class="page" id="page-custmap">
-  <div class="topbar">
-    <div class="topbar-left"><div class="page-title">고객 지도</div><div class="page-sub">지역별 고객 분포 현황</div></div>
-    <div class="topbar-right">
-      <select class="form-input" id="map-filter" style="width:150px" onchange="renderCustMap()">
-        <option value="">전체 고객</option>
-        <option value="purchase">구매 고객</option>
-        <option value="trial">체험 고객</option>
-        <option value="gov">정부지원 고객</option>
-      </select>
-    </div>
-  </div>
-  <div class="content">
-    <div style="display:grid;grid-template-columns:1fr 300px;gap:16px">
-      <div class="card">
-        <div class="card-header"><span class="card-title">지역별 고객 현황</span></div>
-        <div class="card-body" id="map-region-list"></div>
-      </div>
-      <div class="card" style="height:fit-content">
-        <div class="card-header"><span class="card-title">지역 고객 목록</span></div>
-        <div class="card-body" id="map-cust-list" style="padding:8px">
-          <div class="empty" style="padding:16px"><span style="font-size:12px;color:var(--text3)">지역을 클릭하세요</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- ======</div>
 
 <!-- ============ MESSAGES ============ -->
 <div class="page" id="page-messages">
