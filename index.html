@@ -3997,7 +3997,7 @@ function renderCalendar(){
     for(var mi=0;mi<maxMDots;mi++) dots+='<div style="width:6px;height:6px;border-radius:50%;background:'+typeColors[manItems[mi].type||'store']+';flex-shrink:0"></div>';
     var manLabel='';
     if(manItems.length>0) manLabel='<div style="font-size:9px;background:'+typeColors[manItems[0].type||'store']+'22;color:'+typeColors[manItems[0].type||'store']+';border-radius:3px;padding:1px 4px;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+(manItems[0].time?manItems[0].time+' ':'')+manItems[0].title+'</div>';
-    html+='<div onclick="selectCalDate(''+ds+'')" style="min-height:90px;background:'+(isSel?'var(--accent-light)':isToday?'#f0fdf4':'var(--bg2)')+';border:1px solid '+(isSel?'var(--accent2)':isToday?'var(--accent2)':'var(--border)')+';border-radius:var(--r3);padding:6px;cursor:pointer;transition:all .1s">';
+    html+='<div onclick="selectCalDate(\''+ds+'\')" style="min-height:90px;background:'+(isSel?'var(--accent-light)':isToday?'#f0fdf4':'var(--bg2)')+';border:1px solid '+(isSel?'var(--accent2)':isToday?'var(--accent2)':'var(--border)')+';border-radius:var(--r3);padding:6px;cursor:pointer;transition:all .1s">';
     html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px"><span style="font-size:13px;font-weight:'+(isToday?700:500)+';color:'+txtColor+'">'+d+'</span>'+(total>0?'<span style="font-size:10px;font-weight:700;color:var(--accent)">'+total+'</span>':'')+'</div>';
     html+='<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px">'+dots+'</div>'+manLabel;
     html+='</div>';
@@ -4116,7 +4116,7 @@ function renderCustMap(){
   sorted.forEach(function(entry){
     var r=entry[0], cs=entry[1];
     var pct=Math.round(cs.length/total*100);
-    html+='<div onclick="showMapCustList(''+r+'')" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)">';
+    html+='<div onclick="showMapCustList(\''+r+'\'')" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)">';
     html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:13px;font-weight:600;flex:1">'+r+'</span><span style="font-size:12px;font-weight:700;color:var(--accent)">'+cs.length+'명</span><span style="font-size:11px;color:var(--text3)">'+pct+'%</span></div>';
     html+='<div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:var(--accent2);border-radius:3px"></div></div></div>';
   });
@@ -4364,7 +4364,7 @@ function buildTLHTML(c,scheds,idx){
     html+='<div class="tl-item"><div class="tl-dot '+doneCheck+'"></div><div class="tl-card">';
     html+='<div class="tl-card-title" style="display:flex;align-items:center;justify-content:space-between">';
     html+='<span>'+s.label+'</span><div style="display:flex;align-items:center;gap:4px"><span class="badge '+s.cls+'" style="font-size:10px">'+(s.type==='call'?'&#128222; 전화':'&#128172; 문자')+'</span>';
-    html+='<button onclick="openTLMemo('+idx+',''+memoKey+'',''+s.label+'')" style="font-size:10px;background:none;border:none;cursor:pointer;color:var(--text3)">&#9998;</button></div></div>';
+    html+='<button onclick="openTLMemo('+idx+',\''+memoKey+'\',\''+s.label+'\'')" style="font-size:10px;background:none;border:none;cursor:pointer;color:var(--text3)">&#9998;</button></div></div>';
     html+='<div class="tl-card-date">'+dateStr+'</div>';
     if(memo) html+='<div style="font-size:11px;color:var(--accent);margin-top:4px;padding:4px 8px;background:var(--accent-light);border-radius:4px">&#128221; '+memo+'</div>';
     html+='</div></div>';
