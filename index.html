@@ -1085,7 +1085,7 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
 <!-- ============ CUSTOMER MAP ============ -->
 <div class="page" id="page-custmap">
   <div class="topbar">
-    <div class="topbar-left"><div class="page-title">고객 지도</div><div class="page-sub">대구·경북·경남 지역별 고객 분포</div></div>
+    <div class="topbar-left"><div class="page-title">고객 지도</div><div class="page-sub">지역별 고객 분포 현황</div></div>
     <div class="topbar-right">
       <select class="form-input" id="map-filter" style="width:150px" onchange="renderCustMap()">
         <option value="">전체 고객</option>
@@ -1093,54 +1093,26 @@ hr{border:none;border-top:1px solid var(--border);margin:16px 0}
         <option value="trial">체험 고객</option>
         <option value="gov">정부지원 고객</option>
       </select>
-      <div style="display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r3);padding:3px">
-        <button class="tab-btn active" id="map-view-map" onclick="switchMapView('map')" style="font-size:11px;padding:4px 10px">🗺 지도</button>
-        <button class="tab-btn" id="map-view-stat" onclick="switchMapView('stat')" style="font-size:11px;padding:4px 10px">📊 통계</button>
-      </div>
     </div>
   </div>
   <div class="content">
-    <!-- 지도 뷰 -->
-    <div id="map-view-map-panel">
-      <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
-        <div class="card">
-          <div class="card-header"><span class="card-title">대구·경북·경남 고객 분포</span><span id="map-total-badge" class="badge b-green"></span></div>
-          <div class="card-body" style="padding:12px">
-            <div id="region-svg-wrap" style="width:100%"></div>
-            <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;font-size:11px;color:var(--text2)">
-              <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;background:#d8f3dc;border:1px solid #a5d6a7;border-radius:2px;display:inline-block"></span>1~2명</span>
-              <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;background:#74c69d;border-radius:2px;display:inline-block"></span>3~5명</span>
-              <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;background:#40916c;border-radius:2px;display:inline-block"></span>6~9명</span>
-              <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;background:#1b4332;border-radius:2px;display:inline-block"></span>10명+</span>
-            </div>
-          </div>
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">지역별 고객 현황</span>
+          <span id="map-total-badge" class="badge b-green"></span>
         </div>
-        <div class="card" style="height:fit-content">
-          <div class="card-header"><span class="card-title" id="map-cust-title">지역 고객 목록</span></div>
-          <div class="card-body" id="map-cust-list" style="padding:8px">
-            <div class="empty" style="padding:16px"><span style="font-size:12px;color:var(--text3)">지역을 클릭하세요</span></div>
-          </div>
-        </div>
+        <div class="card-body" id="map-region-list"></div>
       </div>
-    </div>
-    <!-- 통계 뷰 -->
-    <div id="map-view-stat-panel" style="display:none">
-      <div style="display:grid;grid-template-columns:1fr 280px;gap:16px">
-        <div class="card">
-          <div class="card-header"><span class="card-title">지역별 고객 현황</span></div>
-          <div class="card-body" id="map-region-list"></div>
-        </div>
-        <div class="card" style="height:fit-content">
-          <div class="card-header"><span class="card-title" id="map-cust-title2">지역 고객 목록</span></div>
-          <div class="card-body" id="map-cust-list2" style="padding:8px">
-            <div class="empty" style="padding:16px"><span style="font-size:12px;color:var(--text3)">지역을 클릭하세요</span></div>
-          </div>
+      <div class="card" style="position:sticky;top:72px">
+        <div class="card-header"><span class="card-title" id="map-cust-title">고객 목록</span></div>
+        <div class="card-body" id="map-cust-list" style="padding:8px;max-height:600px;overflow-y:auto">
+          <div class="empty" style="padding:20px"><span style="font-size:12px;color:var(--text3)">지역을 클릭하세요</span></div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 <!-- ============ CALENDAR ============ -->
 <div class="page" id="page-calendar">
   <div class="topbar">
@@ -3212,136 +3184,79 @@ function renderCustMap(){
   var regionCount = {};
   list.forEach(function(c){
     var r = c.region||'지역미등록';
-    regionCount[r] = (regionCount[r]||0) + 1;
+    if(!regionCount[r]) regionCount[r]=[];
+    regionCount[r].push(c);
   });
 
   var total = list.length;
   var badge = document.getElementById('map-total-badge');
   if(badge) badge.textContent = '총 '+total+'명';
 
-  // SVG를 DOM API로 직접 생성
-  var wrap = document.getElementById('region-svg-wrap');
-  if(wrap){
-    var NS = 'http://www.w3.org/2000/svg';
-    var svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('viewBox','0 0 500 420');
-    svg.setAttribute('style','width:100%;max-height:520px');
-
-    // 배경
-    var bg = document.createElementNS(NS,'rect');
-    bg.setAttribute('width','500'); bg.setAttribute('height','420');
-    bg.setAttribute('fill','#eaf4fb'); bg.setAttribute('rx','8');
-    svg.appendChild(bg);
-
-    // 각 지역 그리기
-    Object.keys(MAP_REGIONS).forEach(function(regionName){
-      var r = MAP_REGIONS[regionName];
-      var cnt = regionCount[regionName]||0;
-      var fill = getRegionColor(cnt);
-      var textColor = getRegionTextColor(cnt);
-      var stroke = cnt>0 ? '#40916c' : '#c8c7be';
-
-      var g = document.createElementNS(NS,'g');
-      g.style.cursor = cnt>0 ? 'pointer' : 'default';
-      if(cnt>0){
-        g.addEventListener('click', (function(rn){ return function(){ showMapCustList(rn); }; })(regionName));
-      }
-
-      var path = document.createElementNS(NS,'path');
-      path.setAttribute('d', r.path);
-      path.setAttribute('fill', fill);
-      path.setAttribute('stroke', stroke);
-      path.setAttribute('stroke-width', cnt>0?'1.5':'1');
-      g.appendChild(path);
-
-      var shortName = regionName.replace('대구 ','').replace('광역시','');
-      var t1 = document.createElementNS(NS,'text');
-      t1.setAttribute('x', r.cx); t1.setAttribute('y', r.cy-2);
-      t1.setAttribute('text-anchor','middle');
-      t1.setAttribute('font-size','9'); t1.setAttribute('font-weight','600');
-      t1.setAttribute('fill', textColor);
-      t1.setAttribute('style','pointer-events:none');
-      t1.textContent = shortName;
-      g.appendChild(t1);
-
-      if(cnt>0){
-        var t2 = document.createElementNS(NS,'text');
-        t2.setAttribute('x', r.cx); t2.setAttribute('y', r.cy+9);
-        t2.setAttribute('text-anchor','middle');
-        t2.setAttribute('font-size','9'); t2.setAttribute('font-weight','700');
-        t2.setAttribute('fill', textColor);
-        t2.setAttribute('style','pointer-events:none');
-        t2.textContent = cnt+'명';
-        g.appendChild(t2);
-      }
-      svg.appendChild(g);
-    });
-
-    // 지역미등록 표시
-    if(regionCount['지역미등록']){
-      var rg = document.createElementNS(NS,'rect');
-      rg.setAttribute('x','10'); rg.setAttribute('y','10');
-      rg.setAttribute('width','80'); rg.setAttribute('height','22');
-      rg.setAttribute('rx','4'); rg.setAttribute('fill','#e2e1d8');
-      svg.appendChild(rg);
-      var rt = document.createElementNS(NS,'text');
-      rt.setAttribute('x','50'); rt.setAttribute('y','25');
-      rt.setAttribute('text-anchor','middle');
-      rt.setAttribute('font-size','10'); rt.setAttribute('fill','#6b6a62');
-      rt.textContent = '미등록: '+regionCount['지역미등록']+'명';
-      svg.appendChild(rt);
-    }
-
-    wrap.innerHTML = '';
-    wrap.appendChild(svg);
-  }
-
-  // 통계 뷰 렌더링
-  var sorted = Object.entries(regionCount).sort(function(a,b){return b[1]-a[1];});
+  var sorted = Object.entries(regionCount).sort(function(a,b){return b[1].length-a[1].length;});
   var el = document.getElementById('map-region-list');
-  if(el){
-    if(!sorted.length){el.innerHTML='<div class="empty">등록된 고객이 없습니다</div>';return;}
-    var html = '<div style="margin-bottom:12px;font-size:12px;color:var(--text2)">총 '+total+'명 · '+sorted.length+'개 지역</div>';
-    sorted.forEach(function(entry){
-      var r=entry[0], cnt=entry[1];
-      var pct=Math.round(cnt/total*100);
-      html+='<div onclick="showMapCustList2(\''+r+'\')" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)">';
-      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:13px;font-weight:600;flex:1">'+r+'</span><span style="font-size:12px;font-weight:700;color:var(--accent)">'+cnt+'명</span><span style="font-size:11px;color:var(--text3)">'+pct+'%</span></div>';
-      html+='<div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:var(--accent2);border-radius:3px"></div></div></div>';
-    });
-    el.innerHTML = html;
+  if(!el) return;
+
+  if(!sorted.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">📍</div>등록된 고객이 없습니다</div>';
+    return;
   }
+
+  var html = '';
+  sorted.forEach(function(entry){
+    var regionName = entry[0];
+    var custs = entry[1];
+    var cnt = custs.length;
+    var pct = total>0 ? Math.round(cnt/total*100) : 0;
+    var col = cnt>=10?'var(--accent)':cnt>=5?'var(--accent2)':cnt>=3?'#52b788':'var(--text2)';
+
+    html += '<div onclick="showMapCustList(\''+regionName+'\')" style="cursor:pointer;padding:12px 0;border-bottom:1px solid var(--border);transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'+
+        '<span style="font-size:13px;font-weight:600;flex:1">'+regionName+'</span>'+
+        '<span style="font-size:14px;font-weight:700;color:'+col+'">'+cnt+'명</span>'+
+        '<span style="font-size:11px;color:var(--text3);min-width:32px;text-align:right">'+pct+'%</span>'+
+      '</div>'+
+      '<div style="height:8px;background:var(--bg4);border-radius:4px;overflow:hidden">'+
+        '<div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px;transition:width .3s"></div>'+
+      '</div>'+
+    '</div>';
+  });
+
+  el.innerHTML = html;
 }
 
 function showMapCustList(region){
-  var list = DB.c.filter(function(c){return (c.region||'지역미등록')===region;});
-  var html = '<div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text)">'+region+' · '+list.length+'명</div>';
-  if(!list.length){ html += '<div class="empty" style="padding:12px"><span style="font-size:12px;color:var(--text3)">해당 고객 없음</span></div>'; }
-  list.forEach(function(c){
-    var i=DB.c.indexOf(c); var col=ac(c.name);
-    html+='<div onclick="showModal('+i+')" style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer">';
-    html+='<div style="width:28px;height:28px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+c.name.slice(0,2)+'</div>';
-    html+='<div><div style="font-size:12px;font-weight:600">'+c.name+'</div><div style="font-size:10px;color:var(--text2)">'+c.phone+'</div></div></div>';
-  });
-  var el = document.getElementById('map-cust-list');
-  if(el) el.innerHTML = html;
-  var title = document.getElementById('map-cust-title');
-  if(title) title.textContent = region+' ('+list.length+'명)';
-}
+  var list = DB.c.filter(function(c){ return (c.region||'지역미등록')===region; });
+  var titleEl = document.getElementById('map-cust-title');
+  if(titleEl) titleEl.textContent = region+' ('+list.length+'명)';
 
-function showMapCustList2(region){
-  var list = DB.c.filter(function(c){return (c.region||'지역미등록')===region;});
-  var html = '<div style="font-size:12px;font-weight:700;margin-bottom:8px">'+region+' · '+list.length+'명</div>';
+  var el = document.getElementById('map-cust-list');
+  if(!el) return;
+
+  if(!list.length){
+    el.innerHTML='<div class="empty" style="padding:16px"><span style="font-size:12px;color:var(--text3)">해당 지역 고객 없음</span></div>';
+    return;
+  }
+
+  var html = '';
   list.forEach(function(c){
-    var i=DB.c.indexOf(c); var col=ac(c.name);
-    html+='<div onclick="showModal('+i+')" style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer">';
-    html+='<div style="width:28px;height:28px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+c.name.slice(0,2)+'</div>';
-    html+='<div><div style="font-size:12px;font-weight:600">'+c.name+'</div><div style="font-size:10px;color:var(--text2)">'+c.phone+'</div></div></div>';
+    var i = DB.c.indexOf(c);
+    var col = ac(c.name);
+    var typeLabel = c.type==='trial'?'체험':({general:'일반',gov:'정부지원',both:'병행','new-deaf':'등급신청'}[c.purchaseType||'general']||'구매');
+    var typeBadge = c.type==='trial'?'b-teal':'b-green';
+    html += '<div onclick="showModal('+i+')" style="display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">'+
+      (c.photo
+        ? '<img src="'+c.photo+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0">'
+        : '<div style="width:36px;height:36px;border-radius:50%;background:'+col+'18;color:'+col+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+c.name.slice(0,2)+'</div>')+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:600">'+c.name+'</div>'+
+        '<div style="font-size:11px;color:var(--text2);margin-top:2px">'+c.phone+'</div>'+
+        '<div style="margin-top:3px"><span class="badge '+typeBadge+'" style="font-size:10px">'+typeLabel+'</span></div>'+
+      '</div>'+
+      '<span style="font-size:10px;color:var(--text3)">&#9656;</span>'+
+    '</div>';
   });
-  var el = document.getElementById('map-cust-list2');
-  if(el) el.innerHTML = html;
-  var title = document.getElementById('map-cust-title2');
-  if(title) title.textContent = region+' ('+list.length+'명)';
+
+  el.innerHTML = html;
 }
 
 // ========== DASHBOARD VISIT TRACKING (#1) ==========
