@@ -748,3 +748,179 @@
                         </div>
                         <div class="ratio-text">${count}건 (${percent}%)</div>
                     `;
+                    ratioContainer.appendChild(item);
+                });
+            }
+            
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            responses.forEach((response, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${response.age}</td>
+                    <td>${response.region}</td>
+                    <td>${response.gender}</td>
+                    <td>${response.path}</td>
+                    <td>${response.detailedPath}</td>
+                    <td>${response.time}</td>
+                    <td style="text-align: center;">
+                        <button class="btn-delete" data-index="${index}">삭제</button>
+                    </td>
+                `;
+                
+                const deleteBtn = row.querySelector('.btn-delete');
+                deleteBtn.onclick = function() {
+                    const idx = this.dataset.index;
+                    if (confirm('이 항목을 삭제하시겠습니까?')) {
+                        let data = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
+                        data.splice(parseInt(idx), 1);
+                        localStorage.setItem('consultation-responses', JSON.stringify(data));
+                        loadDashboardData();
+                        console.log(`데이터 삭제 완료: index ${idx}`);
+                    }
+                };
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        function refreshDashboard() {
+            loadDashboardData();
+        }
+        
+        function deleteRow(index) {
+            if (confirm('이 항목을 삭제하시겠습니까?')) {
+                let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
+                responses.splice(index, 1);
+                localStorage.setItem('consultation-responses', JSON.stringify(responses));
+                loadDashboardData();
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('⚠️ 모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!')) {
+                if (confirm('정말로 삭제하시겠습니까?')) {
+                    localStorage.setItem('consultation-responses', '[]');
+                    loadDashboardData();
+                }
+            }
+        }
+        
+        function downloadCSV() {
+            const responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
+            
+            if (responses.length === 0) {
+                alert('다운로드할 데이터가 없습니다.');
+                return;
+            }
+            
+            const headers = ['번호', '나이', '지역', '성별', '경로', '상세경로', '시간', '날짜'];
+            let csv = headers.join(',') + '\n';
+            
+            responses.forEach((response, index) => {
+                csv += `${index + 1},${response.age},"${response.region}",${response.gender},${response.path},"${response.detailedPath}",${response.time},${response.date}\n`;
+            });
+            
+            // UTF-8 BOM 추가 - 엑셀에서 한글이 정상적으로 표시되도록
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `상담데이터_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/ /g, '')}.csv`);
+            link.click();
+        }
+        
+        function openAddItemModal() {
+            loadCustomPaths();
+            
+            document.getElementById('addItemModal').classList.add('active');
+            document.getElementById('addAge').value = '';
+            document.getElementById('addRegion').value = '';
+            document.querySelectorAll('input[name="addGender"]').forEach(el => el.checked = false);
+            document.querySelectorAll('input[name="addPath"]').forEach(el => el.checked = false);
+            document.getElementById('addDetailPath').innerHTML = '<option value="">-- 선택 --</option>';
+            document.getElementById('addItemError').style.display = 'none';
+            document.getElementById('addItemError').textContent = '';
+            console.log('항목추가 모달 열기 - customPaths:', customPaths);
+        }
+        
+        function closeAddItemModal() {
+            document.getElementById('addItemModal').classList.remove('active');
+        }
+        
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'addPath') {
+                const path = e.target.value;
+                const selectElement = document.getElementById('addDetailPath');
+                selectElement.innerHTML = '<option value="">-- 선택 --</option>';
+                
+                loadCustomPaths();
+                const pathType = path === '온라인' ? 'online' : 'offline';
+                const options = customPaths[pathType] || [];
+                
+                console.log(`경로 선택: ${path}, 옵션:`, options);
+                
+                options.forEach(pathName => {
+                    const option = document.createElement('option');
+                    option.value = pathName;
+                    option.textContent = pathName;
+                    selectElement.appendChild(option);
+                });
+            }
+        });
+        
+        function submitAddItem() {
+            const age = document.getElementById('addAge').value.trim();
+            const region = document.getElementById('addRegion').value.trim();
+            const gender = document.querySelector('input[name="addGender"]:checked');
+            const path = document.querySelector('input[name="addPath"]:checked');
+            const detailedPath = document.getElementById('addDetailPath').value;
+            
+            const errorDiv = document.getElementById('addItemError');
+            
+            if (!age || !region || !gender || !path || !detailedPath) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '모든 항목을 입력해주세요';
+                return;
+            }
+            
+            if (isNaN(age) || age < 10 || age > 120) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '올바른 나이를 입력해주세요';
+                return;
+            }
+            
+            const responseData = {
+                age: age,
+                region: region,
+                gender: gender.value,
+                path: path.value,
+                detailedPath: detailedPath,
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleDateString('ko-KR'),
+                time: new Date().toLocaleTimeString('ko-KR')
+            };
+            
+            // 1️⃣ localStorage에 저장
+            let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
+            responses.push(responseData);
+            localStorage.setItem('consultation-responses', JSON.stringify(responses));
+            
+            // 2️⃣ Firebase에 저장 (동시에 진행)
+            db.ref('consultation-responses').push(responseData, function(error) {
+                if (error) {
+                    console.error('❌ Firebase 저장 실패:', error);
+                } else {
+                    console.log('✅ Firebase 저장 성공:', responseData);
+                }
+            });
+            
+            closeAddItemModal();
+            loadDashboardData();
+        }
+    </script>
+</body>
+</html>
