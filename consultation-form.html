@@ -101,8 +101,8 @@
                 <h1>방문 경로 선택 🚀</h1>
                 <p class="subtitle">어떻게 저희를 알게 되셨나요?</p>
                 <div class="options-grid">
-                    <button class="option-btn" onclick="selectPath('online')">🌐 온라인</button>
-                    <button class="option-btn" onclick="selectPath('offline')">🏪 오프라인</button>
+                    <button class="option-btn" onclick="selectPath('online')">🌐 온라인(인터넷광고)</button>
+                    <button class="option-btn" onclick="selectPath('offline')">🏪 오프라인(간판·소개)</button>
                 </div>
                 <div class="button-group">
                     <button class="btn btn-secondary" onclick="prevStep()">이전</button>
@@ -226,7 +226,7 @@
             const container = document.getElementById('detailOptions');
             container.innerHTML = '';
             const options = detailOptions[selectedPath];
-            const title = selectedPath === 'online' ? '🌐 온라인 경로' : '🏪 오프라인 경로';
+            const title = selectedPath === 'online' ? '🌐 온라인 경로 (인터넷광고)' : '🏪 오프라인 경로 (간판·소개)';
             document.getElementById('step3Title').textContent = title + ' 선택';
             document.getElementById('step3Subtitle').textContent = '더 정확한 경로를 선택해주세요';
             
