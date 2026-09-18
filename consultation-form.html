@@ -131,22 +131,7 @@
         </div>
     </div>
     
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCtmLdXNUW8r4u-KbNZMFfJ8Zyi0QgR1po",
-            authDomain: "signia-program.firebaseapp.com",
-            projectId: "signia-program",
-            storageBucket: "signia-program.firebasestorage.app",
-            messagingSenderId: "344514250697",
-            appId: "1:344514250697:web:ebf2a997e3f1db91bd0a18"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
         let currentStep = 1;
         let selectedPath = null;
         let selectedDetailPath = null;
@@ -261,32 +246,31 @@
             document.getElementById('submitBtn').disabled = false;
         }
         
-        async function submitForm() {
+        function submitForm() {
             if (!selectedDetailPath) {
                 showMessage('message3', '상세 경로를 선택해주세요', 'error');
                 return;
             }
             
-            try {
-                const pathText = selectedPath === 'online' ? '온라인' : '오프라인';
-                const detailText = Object.values(detailOptions).flat().find(opt => opt.id === selectedDetailPath)?.name || selectedDetailPath;
-                
-                await db.collection('consultation-responses').add({
-                    age: formData.age,
-                    region: formData.region,
-                    gender: formData.gender,
-                    path: pathText,
-                    detailedPath: detailText,
-                    timestamp: new Date(),
-                    date: new Date().toLocaleDateString('ko-KR'),
-                    time: new Date().toLocaleTimeString('ko-KR')
-                });
-                
-                showCompletion();
-            } catch (error) {
-                console.error("저장 오류:", error);
-                showMessage('message3', '오류가 발생했습니다: ' + error.message, 'error');
-            }
+            const pathText = selectedPath === 'online' ? '온라인' : '오프라인';
+            const detailText = Object.values(detailOptions).flat().find(opt => opt.id === selectedDetailPath)?.name || selectedDetailPath;
+            
+            const responseData = {
+                age: formData.age,
+                region: formData.region,
+                gender: formData.gender,
+                path: pathText,
+                detailedPath: detailText,
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleDateString('ko-KR'),
+                time: new Date().toLocaleTimeString('ko-KR')
+            };
+            
+            let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
+            responses.push(responseData);
+            localStorage.setItem('consultation-responses', JSON.stringify(responses));
+            
+            showCompletion();
         }
         
         function showCompletion() {
