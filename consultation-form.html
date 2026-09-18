@@ -814,11 +814,35 @@
                 deleteBtn.onclick = function() {
                     const idx = this.dataset.index;
                     if (confirm('이 항목을 삭제하시겠습니까?')) {
+                        // 삭제할 데이터의 timestamp 찾기
+                        const dataToDelete = responses[parseInt(idx)];
+                        const timestamp = dataToDelete.timestamp;
+                        
+                        // 1️⃣ localStorage에서 삭제
                         let data = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
                         data.splice(parseInt(idx), 1);
                         localStorage.setItem('consultation-responses', JSON.stringify(data));
+                        
+                        // 2️⃣ Firebase에서도 삭제 (timestamp 기준으로 찾아서 삭제)
+                        db.ref('consultation-responses').once('value', function(snapshot) {
+                            const firebaseData = snapshot.val();
+                            if (firebaseData) {
+                                Object.entries(firebaseData).forEach(([key, value]) => {
+                                    if (value.timestamp === timestamp) {
+                                        db.ref('consultation-responses/' + key).remove(function(error) {
+                                            if (error) {
+                                                console.error('❌ Firebase 삭제 실패:', error);
+                                            } else {
+                                                console.log('✅ Firebase 삭제 성공:', key);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                        
+                        console.log(`✅ 데이터 삭제 완료: ${timestamp}`);
                         loadDashboardData();
-                        console.log(`데이터 삭제 완료: index ${idx}`);
                     }
                 };
                 
