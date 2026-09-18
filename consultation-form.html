@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>고객 상담 정보 - 시그니아 대구남구센터</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -166,6 +169,7 @@
         </div>
     </div>
     
+    <!-- 관리자 대시보드 (form-container 바깥) -->
     <div class="container">
         <div class="admin-dashboard" id="adminDashboard">
             <div style="margin-bottom: 30px;">
@@ -173,6 +177,7 @@
                 <h1>📊 관리자 대시보드</h1>
             </div>
             
+            <!-- 통계 섹션 -->
             <div class="stats-container">
                 <div class="stat-card">
                     <div class="stat-number" id="totalCount">0</div>
@@ -190,12 +195,14 @@
                 </div>
             </div>
             
+            <!-- 상세경로별 비율 -->
             <div style="background: #f5f5f5; padding: 25px; border-radius: 15px; margin-bottom: 30px;">
                 <h2 style="font-size: 1.5rem; color: #333; margin-bottom: 20px;">📈 상세경로별 비율</h2>
                 <div id="detailRatioContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                 </div>
             </div>
             
+            <!-- 유입경로 관리 -->
             <div style="background: #fff3cd; padding: 25px; border-radius: 15px; margin-bottom: 30px;">
                 <h2 style="font-size: 1.5rem; color: #333; margin-bottom: 20px;">📌 유입경로 관리</h2>
                 
@@ -214,6 +221,7 @@
                 </div>
             </div>
             
+            <!-- 기능 버튼 -->
             <div class="button-group" style="margin: 30px 0;">
                 <button class="btn btn-primary" onclick="refreshDashboard()">🔄 새로고침</button>
                 <button class="btn btn-primary" onclick="openAddItemModal()">➕ 항목 추가</button>
@@ -221,6 +229,7 @@
                 <button class="btn btn-secondary" onclick="clearAllData()" style="background: #ffcdd2; color: #c62828;">🗑️ 전체 삭제</button>
             </div>
             
+            <!-- 데이터 테이블 -->
             <div style="overflow-x: auto; margin-top: 30px;">
                 <table id="dataTable" style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden;">
                     <thead style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
@@ -242,8 +251,10 @@
         </div>
     </div>
     
+    <!-- 관리자 진입 버튼 -->
     <button class="admin-btn" onclick="openAdminModal()">⚙️</button>
     
+    <!-- 암호 입력 모달 -->
     <div class="modal-overlay" id="adminModal">
         <div class="modal-content">
             <h2>관리자 모드</h2>
@@ -256,6 +267,7 @@
         </div>
     </div>
     
+    <!-- 항목 추가 모달 -->
     <div class="modal-overlay" id="addItemModal">
         <div class="modal-content" style="max-width: 500px; text-align: left;">
             <h2 style="text-align: center;">➕ 항목 추가</h2>
@@ -314,6 +326,7 @@
         </div>
     </div>
     
+    <!-- 경로 추가 모달 -->
     <div class="modal-overlay" id="addPathModal">
         <div class="modal-content" style="max-width: 400px;">
             <h2 style="text-align: center;">📌 유입경로 추가</h2>
@@ -333,6 +346,22 @@
     </div>
     
     <script>
+        // ========== Firebase 설정 ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyCtmLdXNUW8r4u-KbNZMFfJ8Zyi0QgR1po",
+            authDomain: "signia-program.firebaseapp.com",
+            databaseURL: "https://signia-program-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "signia-program",
+            storageBucket: "signia-program.firebasestorage.app",
+            messagingSenderId: "344514250697",
+            appId: "1:344514250697:web:ebf2a997e3f1db91bd0a18"
+        };
+        
+        // Firebase 초기화
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        
+        // ===== 기본 경로 데이터 =====
         let customPaths = {
             online: [
                 '네이버', '유튜브', '블로그', '카카오톡', 
@@ -344,17 +373,31 @@
             ]
         };
         
+        // localStorage에서 경로 로드
         function loadCustomPaths() {
-            const saved = localStorage.getItem('custom-paths');
-            if (saved) {
-                customPaths = JSON.parse(saved);
-            }
+            // Firebase에서 커스텀 경로 로드
+            firebase.database().ref('custom-paths').once('value', snapshot => {
+                const saved = snapshot.val();
+                if (saved) {
+                    customPaths = saved;
+                }
+            }).catch(error => {
+                console.error('Firebase 경로 로드 오류:', error);
+                // 오류 발생해도 기본값 유지
+            });
         }
         
+        // 경로 저장
         function saveCustomPaths() {
-            localStorage.setItem('custom-paths', JSON.stringify(customPaths));
+            firebase.database().ref('custom-paths').set(customPaths).then(() => {
+                console.log('경로 저장 완료');
+            }).catch(error => {
+                console.error('Firebase 경로 저장 오류:', error);
+                alert('경로 저장에 실패했습니다.');
+            });
         }
         
+        // 경로 표시
         function renderPathTags() {
             const onlineContainer = document.getElementById('onlinePathContainer');
             const offlineContainer = document.getElementById('offlinePathContainer');
@@ -381,6 +424,7 @@
             }
         }
         
+        // 경로 태그 생성
         function createPathTag(pathName, type) {
             const tag = document.createElement('div');
             tag.style.cssText = `
@@ -430,6 +474,7 @@
             return tag;
         }
         
+        // 경로 삭제
         function deleteCustomPath(type, pathName) {
             if (confirm(`"${pathName}"을(를) 삭제하시겠습니까?`)) {
                 customPaths[type] = customPaths[type].filter(p => p !== pathName);
@@ -439,18 +484,21 @@
             }
         }
         
+        // 경로 추가 모달 열기
         function openAddPathModal(type) {
-            document.getElementById('addPathModal').classList.add('active');
+            document.getElementById('addPathModal').style.display = 'flex';
             document.getElementById('addPathModal').dataset.type = type;
             document.getElementById('addPathName').value = '';
             document.getElementById('addPathError').style.display = 'none';
             document.getElementById('addPathName').focus();
         }
         
+        // 경로 추가 모달 닫기
         function closeAddPathModal() {
-            document.getElementById('addPathModal').classList.remove('active');
+            document.getElementById('addPathModal').style.display = 'none';
         }
         
+        // 경로 추가
         function submitAddPath() {
             const pathName = document.getElementById('addPathName').value.trim();
             const type = document.getElementById('addPathModal').dataset.type;
@@ -475,6 +523,7 @@
             closeAddPathModal();
         }
         
+        // 상세경로 선택지 업데이트
         function updateDetailPathOptions() {
             const selectedPath = document.querySelector('input[name="addPath"]:checked');
             if (!selectedPath) return;
@@ -492,16 +541,38 @@
             });
         }
         
+        // 페이지 로드 시
         window.addEventListener('DOMContentLoaded', () => {
             loadCustomPaths();
         });
-
+ 
         const ADMIN_PASSWORD = 'tlrmsldkskarn';
         
         let currentStep = 1;
         let selectedPath = null;
         let selectedDetailPath = null;
         let formData = {};
+        
+        const detailOptions = {
+            online: [
+                { id: 'naver', name: '네이버' },
+                { id: 'youtube', name: '유튜브' },
+                { id: 'blog', name: '블로그' },
+                { id: 'kakao', name: '카카오톡' },
+                { id: 'smartstore', name: '스마트스토어' },
+                { id: 'google', name: '구글' },
+                { id: 'online_other', name: '기타 온라인' }
+            ],
+            offline: [
+                { id: 'banner', name: '현수막' },
+                { id: 'sign', name: '간판' },
+                { id: 'referral', name: '소개' },
+                { id: 'pharmacy', name: '약국홍보물' },
+                { id: 'flyer', name: '전단지' },
+                { id: 'news', name: '지역뉴스' },
+                { id: 'offline_other', name: '기타 오프라인' }
+            ]
+        };
         
         function goToStep(step) {
             document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
@@ -568,11 +639,13 @@
         }
         
         function renderDetailOptions() {
+            // 먼저 customPaths 로드
             loadCustomPaths();
             
             const container = document.getElementById('detailOptions');
             container.innerHTML = '';
             
+            // customPaths에서 해당 경로 가져오기
             const pathType = selectedPath === 'online' ? 'online' : 'offline';
             const options = customPaths[pathType] || [];
             
@@ -616,11 +689,13 @@
                 time: new Date().toLocaleTimeString('ko-KR')
             };
             
-            let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-            responses.push(responseData);
-            localStorage.setItem('consultation-responses', JSON.stringify(responses));
-            
-            showCompletion();
+            // Firebase에 데이터 저장
+            firebase.database().ref('consultation-responses').push(responseData).then(() => {
+                showCompletion();
+            }).catch(error => {
+                console.error('Firebase 저장 오류:', error);
+                alert('데이터 저장에 실패했습니다. 다시 시도해주세요.');
+            });
         }
         
         function showCompletion() {
@@ -641,6 +716,7 @@
             goToStep(1);
         }
         
+        // 관리자 모달 함수
         function openAdminModal() {
             document.getElementById('adminModal').classList.add('active');
             document.getElementById('adminPassword').value = '';
@@ -678,82 +754,101 @@
         }
         
         function loadDashboardData() {
+            // 경로 로드 및 표시
             loadCustomPaths();
             renderPathTags();
             
-            const responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-            
-            const total = responses.length;
-            const online = responses.filter(r => r.path === '온라인').length;
-            const offline = responses.filter(r => r.path === '오프라인').length;
-            
-            const onlinePercent = total === 0 ? 0 : Math.round((online / total) * 100);
-            const offlinePercent = total === 0 ? 0 : Math.round((offline / total) * 100);
-            
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('onlineCount').textContent = online;
-            document.getElementById('offlineCount').textContent = offline;
-            document.getElementById('onlinePercent').textContent = `${onlinePercent}%`;
-            document.getElementById('offlinePercent').textContent = `${offlinePercent}%`;
-            
-            const detailMap = {};
-            responses.forEach(response => {
-                const key = response.detailedPath;
-                detailMap[key] = (detailMap[key] || 0) + 1;
-            });
-            
-            const ratioContainer = document.getElementById('detailRatioContainer');
-            ratioContainer.innerHTML = '';
-            
-            if (total === 0) {
-                ratioContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">아직 상담 데이터가 없습니다.</div>';
-            } else {
-                Object.entries(detailMap).forEach(([path, count]) => {
-                    const percent = Math.round((count / total) * 100);
-                    const item = document.createElement('div');
-                    item.className = 'ratio-item';
-                    item.innerHTML = `
-                        <div class="ratio-item-name">${path}</div>
-                        <div class="ratio-bar">
-                            <div class="ratio-bar-fill" style="width: ${percent}%;">${percent}%</div>
-                        </div>
-                        <div class="ratio-text">${count}건 (${percent}%)</div>
-                    `;
-                    ratioContainer.appendChild(item);
+            // Firebase에서 데이터 로드
+            firebase.database().ref('consultation-responses').once('value', snapshot => {
+                const firebaseData = snapshot.val() || {};
+                
+                // 배열로 변환 (Firebase key 보존)
+                const responses = Object.entries(firebaseData).map(([key, value]) => ({
+                    ...value,
+                    firebaseKey: key
+                }));
+                
+                const total = responses.length;
+                const online = responses.filter(r => r.path === '온라인').length;
+                const offline = responses.filter(r => r.path === '오프라인').length;
+                
+                // 비율 계산
+                const onlinePercent = total === 0 ? 0 : Math.round((online / total) * 100);
+                const offlinePercent = total === 0 ? 0 : Math.round((offline / total) * 100);
+                
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('onlineCount').textContent = online;
+                document.getElementById('offlineCount').textContent = offline;
+                document.getElementById('onlinePercent').textContent = `${onlinePercent}%`;
+                document.getElementById('offlinePercent').textContent = `${offlinePercent}%`;
+                
+                // 상세경로별 비율 계산
+                const detailMap = {};
+                responses.forEach(response => {
+                    const key = response.detailedPath;
+                    detailMap[key] = (detailMap[key] || 0) + 1;
                 });
-            }
-            
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '';
-            
-            responses.forEach((response, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${response.age}</td>
-                    <td>${response.region}</td>
-                    <td>${response.gender}</td>
-                    <td>${response.path}</td>
-                    <td>${response.detailedPath}</td>
-                    <td>${response.time}</td>
-                    <td style="text-align: center;">
-                        <button class="btn-delete" data-index="${index}">삭제</button>
-                    </td>
-                `;
                 
-                const deleteBtn = row.querySelector('.btn-delete');
-                deleteBtn.onclick = function() {
-                    const idx = this.dataset.index;
-                    if (confirm('이 항목을 삭제하시겠습니까?')) {
-                        let data = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-                        data.splice(parseInt(idx), 1);
-                        localStorage.setItem('consultation-responses', JSON.stringify(data));
-                        loadDashboardData();
-                        console.log(`데이터 삭제 완료: index ${idx}`);
-                    }
-                };
+                // 상세경로별 비율 표시
+                const ratioContainer = document.getElementById('detailRatioContainer');
+                ratioContainer.innerHTML = '';
                 
-                tableBody.appendChild(row);
+                if (total === 0) {
+                    ratioContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">아직 상담 데이터가 없습니다.</div>';
+                } else {
+                    Object.entries(detailMap).forEach(([path, count]) => {
+                        const percent = Math.round((count / total) * 100);
+                        const item = document.createElement('div');
+                        item.className = 'ratio-item';
+                        item.innerHTML = `
+                            <div class="ratio-item-name">${path}</div>
+                            <div class="ratio-bar">
+                                <div class="ratio-bar-fill" style="width: ${percent}%;">${percent}%</div>
+                            </div>
+                            <div class="ratio-text">${count}건 (${percent}%)</div>
+                        `;
+                        ratioContainer.appendChild(item);
+                    });
+                }
+                
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '';
+                
+                responses.forEach((response, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${response.age}</td>
+                        <td>${response.region}</td>
+                        <td>${response.gender}</td>
+                        <td>${response.path}</td>
+                        <td>${response.detailedPath}</td>
+                        <td>${response.time}</td>
+                        <td style="text-align: center;">
+                            <button class="btn-delete" data-key="${response.firebaseKey}">삭제</button>
+                        </td>
+                    `;
+                    
+                    // 삭제 버튼 이벤트 바인딩
+                    const deleteBtn = row.querySelector('.btn-delete');
+                    deleteBtn.onclick = function() {
+                        const key = this.dataset.key;
+                        if (confirm('이 항목을 삭제하시겠습니까?')) {
+                            firebase.database().ref('consultation-responses/' + key).remove().then(() => {
+                                loadDashboardData();
+                                console.log(`Firebase 데이터 삭제 완료: key ${key}`);
+                            }).catch(error => {
+                                console.error('Firebase 삭제 오류:', error);
+                                alert('삭제에 실패했습니다.');
+                            });
+                        }
+                    };
+                    
+                    tableBody.appendChild(row);
+                });
+            }).catch(error => {
+                console.error('Firebase 로드 오류:', error);
+                alert('데이터 로드에 실패했습니다.');
             });
         }
         
@@ -761,48 +856,52 @@
             loadDashboardData();
         }
         
-        function deleteRow(index) {
-            if (confirm('이 항목을 삭제하시겠습니까?')) {
-                let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-                responses.splice(index, 1);
-                localStorage.setItem('consultation-responses', JSON.stringify(responses));
-                loadDashboardData();
-            }
-        }
-        
         function clearAllData() {
             if (confirm('⚠️ 모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!')) {
                 if (confirm('정말로 삭제하시겠습니까?')) {
-                    localStorage.setItem('consultation-responses', '[]');
-                    loadDashboardData();
+                    firebase.database().ref('consultation-responses').remove().then(() => {
+                        loadDashboardData();
+                        console.log('모든 데이터 삭제 완료');
+                    }).catch(error => {
+                        console.error('Firebase 전체 삭제 오류:', error);
+                        alert('삭제에 실패했습니다.');
+                    });
                 }
             }
         }
         
         function downloadCSV() {
-            const responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-            
-            if (responses.length === 0) {
-                alert('다운로드할 데이터가 없습니다.');
-                return;
-            }
-            
-            const headers = ['번호', '나이', '지역', '성별', '경로', '상세경로', '시간', '날짜'];
-            let csv = headers.join(',') + '\n';
-            
-            responses.forEach((response, index) => {
-                csv += `${index + 1},${response.age},"${response.region}",${response.gender},${response.path},"${response.detailedPath}",${response.time},${response.date}\n`;
+            firebase.database().ref('consultation-responses').once('value', snapshot => {
+                const firebaseData = snapshot.val() || {};
+                const responses = Object.values(firebaseData);
+                
+                if (responses.length === 0) {
+                    alert('다운로드할 데이터가 없습니다.');
+                    return;
+                }
+                
+                const headers = ['번호', '나이', '지역', '성별', '경로', '상세경로', '시간', '날짜'];
+                let csv = headers.join(',') + '\n';
+                
+                responses.forEach((response, index) => {
+                    csv += `${index + 1},${response.age},"${response.region}",${response.gender},${response.path},"${response.detailedPath}",${response.time},${response.date}\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `상담데이터_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/ /g, '')}.csv`);
+                link.click();
+            }).catch(error => {
+                console.error('CSV 다운로드 오류:', error);
+                alert('다운로드에 실패했습니다.');
             });
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `상담데이터_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/ /g, '')}.csv`);
-            link.click();
         }
         
+        // 항목 추가 모달 함수
         function openAddItemModal() {
+            // 경로 데이터 로드
             loadCustomPaths();
             
             document.getElementById('addItemModal').classList.add('active');
@@ -826,6 +925,7 @@
                 const selectElement = document.getElementById('addDetailPath');
                 selectElement.innerHTML = '<option value="">-- 선택 --</option>';
                 
+                // customPaths에서 경로 가져오기
                 loadCustomPaths();
                 const pathType = path === '온라인' ? 'online' : 'offline';
                 const options = customPaths[pathType] || [];
@@ -873,13 +973,17 @@
                 time: new Date().toLocaleTimeString('ko-KR')
             };
             
-            let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-            responses.push(responseData);
-            localStorage.setItem('consultation-responses', JSON.stringify(responses));
-            
-            closeAddItemModal();
-            loadDashboardData();
+            // Firebase에 데이터 저장
+            firebase.database().ref('consultation-responses').push(responseData).then(() => {
+                closeAddItemModal();
+                loadDashboardData();
+            }).catch(error => {
+                console.error('Firebase 저장 오류:', error);
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '저장에 실패했습니다. 다시 시도해주세요.';
+            });
         }
     </script>
 </body>
 </html>
+ 
