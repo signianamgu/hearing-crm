@@ -266,6 +266,7 @@
                 time: new Date().toLocaleTimeString('ko-KR')
             };
             
+            // localStorage에 저장
             let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
             responses.push(responseData);
             localStorage.setItem('consultation-responses', JSON.stringify(responses));
