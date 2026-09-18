@@ -710,8 +710,45 @@
             loadCustomPaths();
             renderPathTags();
             
-            const responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
+            // 1️⃣ localStorage에서 데이터 읽기
+            const localResponses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
             
+            // 2️⃣ Firebase에서 데이터 읽기
+            db.ref('consultation-responses').once('value', function(snapshot) {
+                const firebaseData = snapshot.val();
+                let firebaseResponses = [];
+                
+                if (firebaseData) {
+                    Object.values(firebaseData).forEach(item => {
+                        firebaseResponses.push(item);
+                    });
+                }
+                
+                // 3️⃣ localStorage + Firebase 합치기 (중복 제거)
+                const allResponses = [...localResponses];
+                const existingTimestamps = new Set(localResponses.map(r => r.timestamp));
+                
+                firebaseResponses.forEach(firebaseItem => {
+                    if (!existingTimestamps.has(firebaseItem.timestamp)) {
+                        allResponses.push(firebaseItem);
+                    }
+                });
+                
+                // 4️⃣ 시간순으로 정렬
+                allResponses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                
+                console.log('📊 대시보드 데이터 로드:', {
+                    localStorage: localResponses.length,
+                    Firebase: firebaseResponses.length,
+                    합계: allResponses.length
+                });
+                
+                // 5️⃣ 데이터 표시
+                updateDashboardDisplay(allResponses);
+            });
+        }
+        
+        function updateDashboardDisplay(responses) {
             const total = responses.length;
             const online = responses.filter(r => r.path === '온라인').length;
             const offline = responses.filter(r => r.path === '오프라인').length;
