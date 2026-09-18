@@ -737,13 +737,16 @@
                 // 4️⃣ 시간순으로 정렬
                 allResponses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
                 
-                console.log('📊 대시보드 데이터 로드:', {
-                    localStorage: localResponses.length,
+                // ✅ 5️⃣ 핵심: 모든 데이터를 localStorage에 덮어쓰기!
+                localStorage.setItem('consultation-responses', JSON.stringify(allResponses));
+                
+                console.log('📊 대시보드 데이터 로드 및 동기화:', {
+                    localStorage: allResponses.length,
                     Firebase: firebaseResponses.length,
                     합계: allResponses.length
                 });
                 
-                // 5️⃣ 데이터 표시
+                // 6️⃣ 데이터 표시
                 updateDashboardDisplay(allResponses);
             });
         }
