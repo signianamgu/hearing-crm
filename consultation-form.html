@@ -523,24 +523,34 @@
             const pathName = document.getElementById('addPathName').value.trim();
             const type = document.getElementById('addPathModal').dataset.type;
             const errorDiv = document.getElementById('addPathError');
-            
+
             if (!pathName) {
                 errorDiv.textContent = '경로명을 입력해주세요.';
                 errorDiv.style.display = 'block';
                 return;
             }
-            
+
             if (customPaths[type].includes(pathName)) {
                 errorDiv.textContent = '이미 존재하는 경로입니다.';
                 errorDiv.style.display = 'block';
                 return;
             }
-            
+
             customPaths[type].push(pathName);
-            saveCustomPaths();
-            renderPathTags();
-            updateDetailPathOptions();
-            closeAddPathModal();
+
+            // 🔑 Firebase 저장 완료 후에만 모달 닫기
+            localStorage.setItem('custom-paths', JSON.stringify(customPaths));
+            db.ref('custom-paths').set(customPaths, function(error) {
+                if (error) {
+                    console.error('❌ customPaths Firebase 저장 실패:', error);
+                    alert('저장 실패: ' + error.message);
+                } else {
+                    console.log('✅ customPaths Firebase 저장 성공');
+                    renderPathTags();
+                    updateDetailPathOptions();
+                    closeAddPathModal();
+                }
+            });
         }
         
         function updateDetailPathOptions() {
@@ -975,18 +985,16 @@
         }
         
         function openAddItemModal() {
-            // 🔑 loadCustomPaths 완료 후 모달 초기화
-            loadCustomPaths(function() {
-                document.getElementById('addItemModal').classList.add('active');
-                document.getElementById('addAge').value = '';
-                document.getElementById('addRegion').value = '';
-                document.querySelectorAll('input[name="addGender"]').forEach(el => el.checked = false);
-                document.querySelectorAll('input[name="addPath"]').forEach(el => el.checked = false);
-                document.getElementById('addDetailPath').innerHTML = '<option value="">-- 선택 --</option>';
-                document.getElementById('addItemError').style.display = 'none';
-                document.getElementById('addItemError').textContent = '';
-                console.log('항목추가 모달 열기 - customPaths:', customPaths);
-            });
+            // 🔑 이미 메모리에 있는 customPaths를 사용 (Firebase 읽기 불필요!)
+            document.getElementById('addItemModal').classList.add('active');
+            document.getElementById('addAge').value = '';
+            document.getElementById('addRegion').value = '';
+            document.querySelectorAll('input[name="addGender"]').forEach(el => el.checked = false);
+            document.querySelectorAll('input[name="addPath"]').forEach(el => el.checked = false);
+            document.getElementById('addDetailPath').innerHTML = '<option value="">-- 선택 --</option>';
+            document.getElementById('addItemError').style.display = 'none';
+            document.getElementById('addItemError').textContent = '';
+            console.log('항목추가 모달 열기 - customPaths:', customPaths);
         }
         
         function closeAddItemModal() {
@@ -998,13 +1006,13 @@
                 const path = e.target.value;
                 const selectElement = document.getElementById('addDetailPath');
                 selectElement.innerHTML = '<option value="">-- 선택 --</option>';
-                
-                loadCustomPaths();
+
+                // 🔑 이미 메모리의 customPaths 사용 (Firebase 읽기 불필요!)
                 const pathType = path === '온라인' ? 'online' : 'offline';
                 const options = customPaths[pathType] || [];
-                
+
                 console.log(`경로 선택: ${path}, 옵션:`, options);
-                
+
                 options.forEach(pathName => {
                     const option = document.createElement('option');
                     option.value = pathName;
