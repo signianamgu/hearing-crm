@@ -68,7 +68,7 @@
         .path-container { background: #fff3cd; padding: 25px; border-radius: 15px; margin-bottom: 30px; }
         .path-section { margin-bottom: 20px; }
         .path-section h3 { font-size: 1.1rem; color: #666; margin-bottom: 15px; }
-        .path-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+        .path-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; min-height: 35px; }
         .path-tag { display: inline-flex; align-items: center; background: #e8f4f8; border: 2px solid #7fc8d9; padding: 8px 12px; border-radius: 20px; font-size: 0.95rem; color: #2c5f70; gap: 8px; }
         .path-tag button { background: none; border: none; color: #d32f2f; cursor: pointer; font-size: 1.2rem; padding: 0; }
         #dataTable { font-size: 0.95rem; width: 100%; }
@@ -319,24 +319,36 @@
         console.log('✅ Firebase 초기화 완료');
 
         let customPaths = {
-            online: ['네이버', '유튜브', '블로그', '카카오톡', '스마트스토어', '구글', '기타 온라인'],
-            offline: ['현수막', '간판', '소개', '약국홍보물', '전단지', '지역뉴스', '기타 오프라인']
+            online: {},
+            offline: {}
         };
         let currentResponses = [];
         
-        // Firebase Realtime Listener: customPaths 🔄
+        // ========= 초기 경로 설정 =========
+        const defaultPaths = {
+            online: ['네이버', '유튜브', '블로그', '카카오톡', '스마트스토어', '구글', '기타 온라인'],
+            offline: ['현수막', '간판', '소개', '약국홍보물', '전단지', '지역뉴스', '기타 오프라인']
+        };
+
+        // ========= Firebase Realtime Listener: customPaths (개별 항목) 🔄 =========
         console.log('⏳ customPaths Realtime Listener 등록...');
-        db.ref('custom-paths').on('value', function(snapshot) {
-            if (snapshot.val()) {
-                customPaths = snapshot.val();
-                console.log('✅ customPaths 실시간 동기화:', customPaths);
-            }
+        db.ref('custom-paths/online').on('value', function(snapshot) {
+            const data = snapshot.val();
+            customPaths.online = data || {};
+            console.log('✅ customPaths/online 실시간 동기화:', customPaths.online);
             renderPathTags();
             updateDetailPathOptions();
         });
 
-        // Firebase Realtime Listener: consultation-responses 🔄
-        console.log('⏳ consultation-responses Realtime Listener 등록...');
+        db.ref('custom-paths/offline').on('value', function(snapshot) {
+            const data = snapshot.val();
+            customPaths.offline = data || {};
+            console.log('✅ customPaths/offline 실시간 동기화:', customPaths.offline);
+            renderPathTags();
+            updateDetailPathOptions();
+        });
+
+        // ========= Firebase Realtime Listener: consultation-responses 🔄 =========
         db.ref('consultation-responses').on('value', function(snapshot) {
             const firebaseData = snapshot.val() || {};
             let responses = [];
@@ -356,6 +368,34 @@
             }
         });
 
+        // ========= 초기 경로 로드 =========
+        function initializePaths() {
+            db.ref('custom-paths/online').once('value', function(snapshot) {
+                if (!snapshot.val()) {
+                    console.log('📝 온라인 경로 초기화...');
+                    const onlinePaths = {};
+                    defaultPaths.online.forEach(path => {
+                        onlinePaths[db.ref().push().key] = path;
+                    });
+                    db.ref('custom-paths/online').set(onlinePaths);
+                }
+            });
+
+            db.ref('custom-paths/offline').once('value', function(snapshot) {
+                if (!snapshot.val()) {
+                    console.log('📝 오프라인 경로 초기화...');
+                    const offlinePaths = {};
+                    defaultPaths.offline.forEach(path => {
+                        offlinePaths[db.ref().push().key] = path;
+                    });
+                    db.ref('custom-paths/offline').set(offlinePaths);
+                }
+            });
+        }
+
+        // 앱 시작 시 경로 초기화
+        initializePaths();
+
         function renderPathTags() {
             const onlineContainer = document.getElementById('onlinePathContainer');
             const offlineContainer = document.getElementById('offlinePathContainer');
@@ -363,26 +403,30 @@
             onlineContainer.innerHTML = '';
             offlineContainer.innerHTML = '';
             
-            if (!customPaths.online || customPaths.online.length === 0) {
+            // 온라인 경로
+            const onlinePaths = Object.entries(customPaths.online || {});
+            if (onlinePaths.length === 0) {
                 onlineContainer.innerHTML = '<span style="color: #999; font-style: italic;">추가된 경로가 없습니다</span>';
             } else {
-                customPaths.online.forEach(path => {
-                    const tag = createPathTag(path, 'online');
+                onlinePaths.forEach(([key, pathName]) => {
+                    const tag = createPathTag(pathName, 'online', key);
                     onlineContainer.appendChild(tag);
                 });
             }
             
-            if (!customPaths.offline || customPaths.offline.length === 0) {
+            // 오프라인 경로
+            const offlinePaths = Object.entries(customPaths.offline || {});
+            if (offlinePaths.length === 0) {
                 offlineContainer.innerHTML = '<span style="color: #999; font-style: italic;">추가된 경로가 없습니다</span>';
             } else {
-                customPaths.offline.forEach(path => {
-                    const tag = createPathTag(path, 'offline');
+                offlinePaths.forEach(([key, pathName]) => {
+                    const tag = createPathTag(pathName, 'offline', key);
                     offlineContainer.appendChild(tag);
                 });
             }
         }
         
-        function createPathTag(pathName, type) {
+        function createPathTag(pathName, type, firebaseKey) {
             const tag = document.createElement('div');
             tag.className = 'path-tag';
             
@@ -395,15 +439,12 @@
             deleteBtn.onclick = function(e) {
                 e.stopPropagation();
                 if (confirm(`"${pathName}"을(를) 삭제하시겠습니까?`)) {
-                    console.log(`🗑️ 경로 삭제 시작: ${pathName}`);
-                    customPaths[type] = customPaths[type].filter(p => p !== pathName);
-                    db.ref('custom-paths').set(customPaths, function(error) {
+                    console.log(`🗑️ 경로 삭제: ${pathName} (${firebaseKey})`);
+                    db.ref(`custom-paths/${type}/${firebaseKey}`).remove(function(error) {
                         if (error) {
                             console.error('❌ 경로 삭제 오류:', error);
                         } else {
-                            console.log('✅ 경로 삭제 완료');
-                            renderPathTags();
-                            updateDetailPathOptions();
+                            console.log('✅ 경로 삭제 완료 - Realtime Listener가 자동 반영!');
                         }
                     });
                 }
@@ -436,23 +477,23 @@
                 return;
             }
 
-            if (customPaths[type].includes(pathName)) {
+            // 중복 확인
+            const existingPaths = Object.values(customPaths[type] || {});
+            if (existingPaths.includes(pathName)) {
                 errorDiv.textContent = '이미 존재하는 경로입니다.';
                 errorDiv.style.display = 'block';
                 return;
             }
 
-            customPaths[type].push(pathName);
-            console.log('💾 Firebase에 경로 저장 중...', customPaths);
-            db.ref('custom-paths').set(customPaths, function(error) {
+            console.log('💾 Firebase에 경로 추가 중...', pathName);
+            
+            // push()로 새 항목 추가 (Realtime Listener가 자동으로 감지!)
+            db.ref(`custom-paths/${type}`).push(pathName, function(error) {
                 if (error) {
                     console.error('❌ 경로 저장 오류:', error);
                     alert('저장 실패: ' + error.message);
                 } else {
-                    console.log('✅ Firebase 경로 저장 완료 - 화면 즉시 업데이트');
-                    // 즉시 화면 업데이트 (모든 기기에서)
-                    renderPathTags();
-                    updateDetailPathOptions();
+                    console.log('✅ 경로 저장 완료 - 모든 기기에서 자동 반영!');
                     alert('✅ 경로가 추가되었습니다!');
                     closeAddPathModal();
                 }
@@ -465,13 +506,13 @@
             
             const selectElement = document.getElementById('addDetailPath');
             const pathType = selectedPath.value === '온라인' ? 'online' : 'offline';
-            const options = customPaths[pathType];
+            const paths = Object.values(customPaths[pathType] || {});
             
             selectElement.innerHTML = '<option value="">-- 선택 --</option>';
-            options.forEach(opt => {
+            paths.forEach(pathName => {
                 const option = document.createElement('option');
-                option.value = opt;
-                option.textContent = opt;
+                option.value = pathName;
+                option.textContent = pathName;
                 selectElement.appendChild(option);
             });
         }
@@ -550,7 +591,7 @@
             container.innerHTML = '';
             
             const pathType = selectedPath === 'online' ? 'online' : 'offline';
-            const options = customPaths[pathType] || [];
+            const options = Object.values(customPaths[pathType] || {});
             
             const title = selectedPath === 'online' ? '🌐 온라인' : '🏪 오프라인';
             document.getElementById('step3Title').textContent = title + ' 선택';
@@ -804,17 +845,7 @@
 
         document.addEventListener('change', function(e) {
             if (e.target.name === 'addPath') {
-                const path = e.target.value;
-                const selectElement = document.getElementById('addDetailPath');
-                selectElement.innerHTML = '<option value="">-- 선택 --</option>';
-                const pathType = path === '온라인' ? 'online' : 'offline';
-                const options = customPaths[pathType] || [];
-                options.forEach(pathName => {
-                    const option = document.createElement('option');
-                    option.value = pathName;
-                    option.textContent = pathName;
-                    selectElement.appendChild(option);
-                });
+                updateDetailPathOptions();
             }
         });
     </script>
