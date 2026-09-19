@@ -771,10 +771,7 @@
                 renderPathTags();
             });
             
-            // 1️⃣ localStorage에서 데이터 읽기
-            const localResponses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-            
-            // 2️⃣ Firebase에서 데이터 읽기
+            // 2️⃣ Firebase에서 데이터 읽기 (Firebase가 유일한 source of truth)
             db.ref('consultation-responses').once('value', function(snapshot) {
                 const firebaseData = snapshot.val();
                 let firebaseResponses = [];
@@ -785,20 +782,14 @@
                     });
                 }
                 
-                // 3️⃣ localStorage + Firebase 합치기 (중복 제거)
-                const allResponses = [...localResponses];
-                const existingTimestamps = new Set(localResponses.map(r => r.timestamp));
-                
-                firebaseResponses.forEach(firebaseItem => {
-                    if (!existingTimestamps.has(firebaseItem.timestamp)) {
-                        allResponses.push(firebaseItem);
-                    }
-                });
-                
+                // 3️⃣ 🔑 Firebase를 절대적 source of truth로!
+                // Firebase 데이터를 모두 사용하고, localStorage는 캐시로만 사용
+                const allResponses = [...firebaseResponses];
+
                 // 4️⃣ 시간순으로 정렬
                 allResponses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                
-                // ✅ 5️⃣ 핵심: 모든 데이터를 localStorage에 덮어쓰기!
+
+                // ✅ 5️⃣ Firebase 데이터를 localStorage에 저장 (캐시 업데이트)
                 localStorage.setItem('consultation-responses', JSON.stringify(allResponses));
                 
                 console.log('📊 대시보드 데이터 로드 및 동기화:', {
