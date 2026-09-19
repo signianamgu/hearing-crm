@@ -383,7 +383,7 @@
             ]
         };
         
-        function loadCustomPaths() {
+        function loadCustomPaths(callback) {
             // 1️⃣ Firebase에서 먼저 읽기
             db.ref('custom-paths').once('value', function(snapshot) {
                 if (snapshot.val()) {
@@ -400,6 +400,8 @@
                         console.log('✅ customPaths를 Firebase에 저장');
                     }
                 }
+                // 🔑 로드 완료 후 콜백 실행
+                if (callback) callback();
             });
         }
 
@@ -748,8 +750,10 @@
         }
         
         function loadDashboardData() {
-            loadCustomPaths();
-            renderPathTags();
+            // 🔑 loadCustomPaths 완료 후 renderPathTags 호출
+            loadCustomPaths(function() {
+                renderPathTags();
+            });
             
             // 1️⃣ localStorage에서 데이터 읽기
             const localResponses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
@@ -965,17 +969,18 @@
         }
         
         function openAddItemModal() {
-            loadCustomPaths();
-            
-            document.getElementById('addItemModal').classList.add('active');
-            document.getElementById('addAge').value = '';
-            document.getElementById('addRegion').value = '';
-            document.querySelectorAll('input[name="addGender"]').forEach(el => el.checked = false);
-            document.querySelectorAll('input[name="addPath"]').forEach(el => el.checked = false);
-            document.getElementById('addDetailPath').innerHTML = '<option value="">-- 선택 --</option>';
-            document.getElementById('addItemError').style.display = 'none';
-            document.getElementById('addItemError').textContent = '';
-            console.log('항목추가 모달 열기 - customPaths:', customPaths);
+            // 🔑 loadCustomPaths 완료 후 모달 초기화
+            loadCustomPaths(function() {
+                document.getElementById('addItemModal').classList.add('active');
+                document.getElementById('addAge').value = '';
+                document.getElementById('addRegion').value = '';
+                document.querySelectorAll('input[name="addGender"]').forEach(el => el.checked = false);
+                document.querySelectorAll('input[name="addPath"]').forEach(el => el.checked = false);
+                document.getElementById('addDetailPath').innerHTML = '<option value="">-- 선택 --</option>';
+                document.getElementById('addItemError').style.display = 'none';
+                document.getElementById('addItemError').textContent = '';
+                console.log('항목추가 모달 열기 - customPaths:', customPaths);
+            });
         }
         
         function closeAddItemModal() {
