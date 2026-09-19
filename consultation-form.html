@@ -384,14 +384,35 @@
         };
         
         function loadCustomPaths() {
-            const saved = localStorage.getItem('custom-paths');
-            if (saved) {
-                customPaths = JSON.parse(saved);
-            }
+            // 1️⃣ Firebase에서 먼저 읽기
+            db.ref('custom-paths').once('value', function(snapshot) {
+                if (snapshot.val()) {
+                    customPaths = snapshot.val();
+                    localStorage.setItem('custom-paths', JSON.stringify(customPaths));
+                    console.log('✅ customPaths Firebase에서 로드');
+                } else {
+                    // Firebase에 없으면 localStorage에서 로드
+                    const saved = localStorage.getItem('custom-paths');
+                    if (saved) {
+                        customPaths = JSON.parse(saved);
+                        // Firebase에 저장
+                        db.ref('custom-paths').set(customPaths);
+                        console.log('✅ customPaths를 Firebase에 저장');
+                    }
+                }
+            });
         }
-        
+
         function saveCustomPaths() {
             localStorage.setItem('custom-paths', JSON.stringify(customPaths));
+            // 2️⃣ Firebase에도 저장
+            db.ref('custom-paths').set(customPaths, function(error) {
+                if (error) {
+                    console.error('❌ customPaths Firebase 저장 실패:', error);
+                } else {
+                    console.log('✅ customPaths Firebase 저장 성공');
+                }
+            });
         }
         
         function renderPathTags() {
@@ -834,35 +855,47 @@
                 deleteBtn.onclick = function() {
                     const idx = this.dataset.index;
                     if (confirm('이 항목을 삭제하시겠습니까?')) {
-                        // 삭제할 데이터의 timestamp 찾기
                         const dataToDelete = responses[parseInt(idx)];
                         const timestamp = dataToDelete.timestamp;
-                        
+
                         // 1️⃣ localStorage에서 삭제
                         let data = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
                         data.splice(parseInt(idx), 1);
                         localStorage.setItem('consultation-responses', JSON.stringify(data));
-                        
+
                         // 2️⃣ Firebase에서도 삭제 (timestamp 기준으로 찾아서 삭제)
                         db.ref('consultation-responses').once('value', function(snapshot) {
                             const firebaseData = snapshot.val();
                             if (firebaseData) {
-                                Object.entries(firebaseData).forEach(([key, value]) => {
-                                    if (value.timestamp === timestamp) {
-                                        db.ref('consultation-responses/' + key).remove(function(error) {
-                                            if (error) {
-                                                console.error('❌ Firebase 삭제 실패:', error);
-                                            } else {
-                                                console.log('✅ Firebase 삭제 성공:', key);
-                                            }
-                                        });
-                                    }
+                                let deleteCount = 0;
+                                const matchingKeys = Object.entries(firebaseData)
+                                    .filter(([key, value]) => value.timestamp === timestamp)
+                                    .map(([key]) => key);
+
+                                if (matchingKeys.length === 0) {
+                                    console.log('⚠️ Firebase에 해당 데이터가 없습니다');
+                                    loadDashboardData();
+                                    return;
+                                }
+
+                                matchingKeys.forEach((key) => {
+                                    db.ref('consultation-responses/' + key).remove(function(error) {
+                                        deleteCount++;
+                                        if (error) {
+                                            console.error('❌ Firebase 삭제 실패:', error);
+                                        } else {
+                                            console.log('✅ Firebase 삭제 성공:', key);
+                                        }
+
+                                        // 🔑 핵심: 모든 Firebase 삭제 완료 후에만 대시보드 새로고침
+                                        if (deleteCount === matchingKeys.length) {
+                                            console.log(`✅ 모든 데이터 삭제 완료: ${timestamp}`);
+                                            loadDashboardData();
+                                        }
+                                    });
                                 });
                             }
                         });
-                        
-                        console.log(`✅ 데이터 삭제 완료: ${timestamp}`);
-                        loadDashboardData();
                     }
                 };
                 
