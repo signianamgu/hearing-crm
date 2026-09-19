@@ -777,13 +777,15 @@
                 let firebaseResponses = [];
                 
                 if (firebaseData) {
-                    Object.values(firebaseData).forEach(item => {
+                    // 🔑 각 항목에 firebaseKey를 저장!
+                    Object.entries(firebaseData).forEach(([firebaseKey, item]) => {
+                        item.firebaseKey = firebaseKey;
                         firebaseResponses.push(item);
                     });
                 }
-                
+
                 // 3️⃣ 🔑 Firebase를 절대적 source of truth로!
-                // Firebase 데이터를 모두 사용하고, localStorage는 캐시로만 사용
+                // Firebase 데이터를 모두 사용하고, 각 항목에 firebaseKey 포함
                 const allResponses = [...firebaseResponses];
 
                 // 4️⃣ 시간순으로 정렬
@@ -867,43 +869,25 @@
                     const idx = this.dataset.index;
                     if (confirm('이 항목을 삭제하시겠습니까?')) {
                         const dataToDelete = responses[parseInt(idx)];
-                        const timestamp = dataToDelete.timestamp;
+                        const firebaseKey = dataToDelete.firebaseKey;  // ← firebaseKey 사용!
 
-                        // 🔑 Firebase에서만 삭제 (Firebase가 source of truth!)
-                        // localStorage는 건드리지 않음 - Firebase에서 읽은 후 자동 업데이트됨
-                        db.ref('consultation-responses').once('value', function(snapshot) {
-                            const firebaseData = snapshot.val();
-                            if (firebaseData) {
-                                let deleteCount = 0;
-                                const matchingKeys = Object.entries(firebaseData)
-                                    .filter(([key, value]) => value.timestamp === timestamp)
-                                    .map(([key]) => key);
+                        if (!firebaseKey) {
+                            console.error('❌ firebaseKey가 없습니다!');
+                            alert('삭제 실패: 데이터 키를 찾을 수 없습니다');
+                            return;
+                        }
 
-                                if (matchingKeys.length === 0) {
-                                    console.log('⚠️ Firebase에 해당 데이터가 없습니다');
-                                    loadDashboardData();
-                                    return;
-                                }
+                        console.log(`🗑️ Firebase에서 삭제 시작: ${firebaseKey}`);
 
-                                matchingKeys.forEach((key) => {
-                                    db.ref('consultation-responses/' + key).remove(function(error) {
-                                        deleteCount++;
-                                        if (error) {
-                                            console.error('❌ Firebase 삭제 실패:', error);
-                                            alert('삭제 실패: ' + error.message);
-                                        } else {
-                                            console.log('✅ Firebase 삭제 성공:', key);
-                                        }
-
-                                        // 🔑 모든 Firebase 삭제 완료 후에만 대시보드 새로고침
-                                        if (deleteCount === matchingKeys.length) {
-                                            console.log(`✅ 모든 데이터 삭제 완료: ${timestamp}`);
-                                            loadDashboardData();
-                                        }
-                                    });
-                                });
+                        // 🔑 Firebase key로 직접 삭제!
+                        db.ref('consultation-responses/' + firebaseKey).remove(function(error) {
+                            if (error) {
+                                console.error('❌ Firebase 삭제 실패:', error);
+                                alert('삭제 실패: ' + error.message);
                             } else {
-                                alert('데이터를 찾을 수 없습니다');
+                                console.log('✅ Firebase 삭제 성공:', firebaseKey);
+                                // 삭제 완료 후 대시보드 새로고침
+                                loadDashboardData();
                             }
                         });
                     }
