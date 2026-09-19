@@ -384,21 +384,27 @@
         };
         
         function loadCustomPaths(callback) {
-            // 1️⃣ Firebase에서 먼저 읽기
+            // 🔑 Firebase를 절대적 source of truth로!
             db.ref('custom-paths').once('value', function(snapshot) {
                 if (snapshot.val()) {
+                    // Firebase에 있으면 무조건 Firebase 데이터 사용
                     customPaths = snapshot.val();
                     localStorage.setItem('custom-paths', JSON.stringify(customPaths));
-                    console.log('✅ customPaths Firebase에서 로드');
+                    console.log('✅ customPaths Firebase에서 로드 (최신)');
                 } else {
-                    // Firebase에 없으면 localStorage에서 로드
-                    const saved = localStorage.getItem('custom-paths');
-                    if (saved) {
-                        customPaths = JSON.parse(saved);
-                        // Firebase에 저장
-                        db.ref('custom-paths').set(customPaths);
-                        console.log('✅ customPaths를 Firebase에 저장');
-                    }
+                    // Firebase에 없으면 초기값 사용하고 Firebase에 저장
+                    customPaths = {
+                        online: ['네이버', '유튜브', '블로그', '카카오톡', '스마트스토어', '구글', '기타 온라인'],
+                        offline: ['현수막', '간판', '소개', '약국홍보물', '전단지', '지역뉴스', '기타 오프라인']
+                    };
+                    db.ref('custom-paths').set(customPaths, function(error) {
+                        if (error) {
+                            console.error('❌ customPaths 초기값 Firebase 저장 실패:', error);
+                        } else {
+                            console.log('✅ customPaths 초기값 Firebase에 저장 완료');
+                        }
+                    });
+                    localStorage.setItem('custom-paths', JSON.stringify(customPaths));
                 }
                 // 🔑 로드 완료 후 콜백 실행
                 if (callback) callback();
