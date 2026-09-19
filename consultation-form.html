@@ -324,17 +324,19 @@
         };
         let currentResponses = [];
         
-        // Firebase Realtime Listener: customPaths
+        // Firebase Realtime Listener: customPaths 🔄
+        console.log('⏳ customPaths Realtime Listener 등록...');
         db.ref('custom-paths').on('value', function(snapshot) {
             if (snapshot.val()) {
                 customPaths = snapshot.val();
-                console.log('✅ customPaths 로드:', customPaths);
+                console.log('✅ customPaths 실시간 동기화:', customPaths);
             }
             renderPathTags();
             updateDetailPathOptions();
         });
 
-        // Firebase Realtime Listener: consultation-responses
+        // Firebase Realtime Listener: consultation-responses 🔄
+        console.log('⏳ consultation-responses Realtime Listener 등록...');
         db.ref('consultation-responses').on('value', function(snapshot) {
             const firebaseData = snapshot.val() || {};
             let responses = [];
@@ -347,7 +349,7 @@
             responses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
             currentResponses = responses;
             
-            console.log(`✅ Firebase 동기화: ${responses.length}건`);
+            console.log(`✅ 데이터 실시간 동기화: ${responses.length}건`);
             
             if (document.getElementById('adminDashboard').classList.contains('active')) {
                 updateDashboardDisplay(responses);
@@ -393,8 +395,17 @@
             deleteBtn.onclick = function(e) {
                 e.stopPropagation();
                 if (confirm(`"${pathName}"을(를) 삭제하시겠습니까?`)) {
+                    console.log(`🗑️ 경로 삭제 시작: ${pathName}`);
                     customPaths[type] = customPaths[type].filter(p => p !== pathName);
-                    db.ref('custom-paths').set(customPaths);
+                    db.ref('custom-paths').set(customPaths, function(error) {
+                        if (error) {
+                            console.error('❌ 경로 삭제 오류:', error);
+                        } else {
+                            console.log('✅ 경로 삭제 완료');
+                            renderPathTags();
+                            updateDetailPathOptions();
+                        }
+                    });
                 }
             };
             tag.appendChild(deleteBtn);
@@ -432,11 +443,17 @@
             }
 
             customPaths[type].push(pathName);
+            console.log('💾 Firebase에 경로 저장 중...', customPaths);
             db.ref('custom-paths').set(customPaths, function(error) {
                 if (error) {
+                    console.error('❌ 경로 저장 오류:', error);
                     alert('저장 실패: ' + error.message);
                 } else {
-                    console.log('✅ 경로 추가 완료');
+                    console.log('✅ Firebase 경로 저장 완료 - 화면 즉시 업데이트');
+                    // 즉시 화면 업데이트 (모든 기기에서)
+                    renderPathTags();
+                    updateDetailPathOptions();
+                    alert('✅ 경로가 추가되었습니다!');
                     closeAddPathModal();
                 }
             });
@@ -667,12 +684,12 @@
                 deleteBtn.onclick = function(e) {
                     e.preventDefault();
                     if (confirm('이 항목을 삭제하시겠습니까?')) {
-                        console.log(`🗑️ 삭제 시작: ${firebaseKey}`);
+                        console.log(`🗑️ 항목 삭제: ${firebaseKey}`);
                         db.ref('consultation-responses/' + firebaseKey).remove(function(error) {
                             if (error) {
                                 alert('❌ 삭제 실패: ' + error.message);
                             } else {
-                                console.log('✅ 삭제 완료');
+                                console.log('✅ 항목 삭제 완료');
                             }
                         });
                     }
@@ -683,7 +700,7 @@
         }
         
         function refreshDashboard() {
-            console.log('🔄 새로고침 클릭 - 현재 데이터:', currentResponses.length, '건');
+            console.log('🔄 새로고침 - 현재 데이터:', currentResponses.length, '건');
             updateDashboardDisplay(currentResponses);
             alert('✅ 새로고침 완료!');
         }
@@ -740,8 +757,6 @@
         }
         
         function submitAddItem() {
-            console.log('📝 항목추가 시작...');
-            
             const age = document.getElementById('addAge').value.trim();
             const region = document.getElementById('addRegion').value.trim();
             const gender = document.querySelector('input[name="addGender"]:checked');
@@ -773,15 +788,13 @@
                 time: new Date().toLocaleTimeString('ko-KR')
             };
             
-            console.log('💾 Firebase 저장 중...', responseData);
-            
             db.ref('consultation-responses').push(responseData, function(error) {
                 if (error) {
                     console.error('❌ Firebase 저장 실패:', error);
                     errorDiv.style.display = 'block';
                     errorDiv.textContent = '저장 실패: ' + error.message;
                 } else {
-                    console.log('✅ Firebase 저장 성공');
+                    console.log('✅ Firebase 저장 완료');
                     errorDiv.style.display = 'none';
                     alert('✅ 항목이 추가되었습니다!');
                     closeAddItemModal();
