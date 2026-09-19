@@ -62,8 +62,7 @@
         .admin-btn:hover { transform: scale(1.1); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; pointer-events: none; }
         .modal-overlay.active { display: flex; pointer-events: auto; }
-        .modal-content { pointer-events: auto; }
-        .modal-content { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 90%; max-width: 700px; text-align: center; }
+        .modal-content { pointer-events: auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 90%; max-width: 700px; text-align: center; }
         .modal-content h2 { font-size: 1.8rem; color: #333; margin-bottom: 25px; }
         .modal-content input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 12px; font-size: 1.1rem; margin-bottom: 20px; }
         .modal-content input:focus { outline: none; border-color: #667eea; }
@@ -369,7 +368,7 @@
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        console.log('✅ Firebase 초기화 완료');
+        console.log('✅ Firebase 초기화 완료 - Realtime Listener 아키텍처');
         // =====================================
 
         let customPaths = {
@@ -382,46 +381,43 @@
                 '전단지', '지역뉴스', '기타 오프라인'
             ]
         };
-        
-        function loadCustomPaths(callback) {
-            // 🔑 Firebase를 절대적 source of truth로!
-            db.ref('custom-paths').once('value', function(snapshot) {
-                if (snapshot.val()) {
-                    // Firebase에 있으면 무조건 Firebase 데이터 사용
-                    customPaths = snapshot.val();
-                    localStorage.setItem('custom-paths', JSON.stringify(customPaths));
-                    console.log('✅ customPaths Firebase에서 로드 (최신)');
-                } else {
-                    // Firebase에 없으면 초기값 사용하고 Firebase에 저장
-                    customPaths = {
-                        online: ['네이버', '유튜브', '블로그', '카카오톡', '스마트스토어', '구글', '기타 온라인'],
-                        offline: ['현수막', '간판', '소개', '약국홍보물', '전단지', '지역뉴스', '기타 오프라인']
-                    };
-                    db.ref('custom-paths').set(customPaths, function(error) {
-                        if (error) {
-                            console.error('❌ customPaths 초기값 Firebase 저장 실패:', error);
-                        } else {
-                            console.log('✅ customPaths 초기값 Firebase에 저장 완료');
-                        }
-                    });
-                    localStorage.setItem('custom-paths', JSON.stringify(customPaths));
-                }
-                // 🔑 로드 완료 후 콜백 실행
-                if (callback) callback();
-            });
-        }
 
-        function saveCustomPaths() {
-            localStorage.setItem('custom-paths', JSON.stringify(customPaths));
-            // 2️⃣ Firebase에도 저장
-            db.ref('custom-paths').set(customPaths, function(error) {
-                if (error) {
-                    console.error('❌ customPaths Firebase 저장 실패:', error);
-                } else {
-                    console.log('✅ customPaths Firebase 저장 성공');
-                }
+        let currentResponses = [];
+        
+        // =========== Firebase Realtime Listener: customPaths ===========
+        console.log('⏳ customPaths Realtime Listener 설정...');
+        db.ref('custom-paths').on('value', function(snapshot) {
+            if (snapshot.val()) {
+                customPaths = snapshot.val();
+                console.log('✅ customPaths Firebase에서 로드:', customPaths);
+            } else {
+                console.log('📝 Firebase customPaths 없음, 초기값으로 저장...');
+                db.ref('custom-paths').set(customPaths);
+            }
+            renderPathTags();
+            updateDetailPathOptions();
+        });
+
+        // =========== Firebase Realtime Listener: consultation-responses ===========
+        console.log('⏳ consultation-responses Realtime Listener 설정...');
+        db.ref('consultation-responses').on('value', function(snapshot) {
+            const firebaseData = snapshot.val() || {};
+            let responses = [];
+            
+            Object.entries(firebaseData).forEach(([key, item]) => {
+                item.firebaseKey = key;
+                responses.push(item);
             });
-        }
+            
+            responses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            currentResponses = responses;
+            
+            console.log(`✅ Firebase Realtime 동기화: ${responses.length}건`);
+            
+            if (document.getElementById('adminDashboard').classList.contains('active')) {
+                updateDashboardDisplay(responses);
+            }
+        });
         
         function renderPathTags() {
             const onlineContainer = document.getElementById('onlinePathContainer');
@@ -461,7 +457,6 @@
                 font-size: 0.95rem;
                 color: #2c5f70;
                 gap: 8px;
-                position: relative;
             `;
             
             const deleteBtn = document.createElement('button');
@@ -482,10 +477,7 @@
                 e.stopPropagation();
                 if (confirm(`"${pathName}"을(를) 삭제하시겠습니까?`)) {
                     customPaths[type] = customPaths[type].filter(p => p !== pathName);
-                    saveCustomPaths();
-                    renderPathTags();
-                    updateDetailPathOptions();
-                    console.log(`경로 삭제 완료: ${pathName}`);
+                    db.ref('custom-paths').set(customPaths);
                 }
             };
             
@@ -496,15 +488,6 @@
             tag.appendChild(deleteBtn);
             
             return tag;
-        }
-        
-        function deleteCustomPath(type, pathName) {
-            if (confirm(`"${pathName}"을(를) 삭제하시겠습니까?`)) {
-                customPaths[type] = customPaths[type].filter(p => p !== pathName);
-                saveCustomPaths();
-                renderPathTags();
-                updateDetailPathOptions();
-            }
         }
         
         function openAddPathModal(type) {
@@ -537,17 +520,11 @@
             }
 
             customPaths[type].push(pathName);
-
-            // 🔑 Firebase 저장 완료 후에만 모달 닫기
-            localStorage.setItem('custom-paths', JSON.stringify(customPaths));
             db.ref('custom-paths').set(customPaths, function(error) {
                 if (error) {
-                    console.error('❌ customPaths Firebase 저장 실패:', error);
                     alert('저장 실패: ' + error.message);
                 } else {
-                    console.log('✅ customPaths Firebase 저장 성공');
-                    renderPathTags();
-                    updateDetailPathOptions();
+                    console.log('✅ 경로 추가 완료');
                     closeAddPathModal();
                 }
             });
@@ -569,10 +546,6 @@
                 selectElement.appendChild(option);
             });
         }
-        
-        window.addEventListener('DOMContentLoaded', () => {
-            loadCustomPaths();
-        });
 
         const ADMIN_PASSWORD = 'tlrmsldkskarn';
         
@@ -646,8 +619,6 @@
         }
         
         function renderDetailOptions() {
-            loadCustomPaths();
-            
             const container = document.getElementById('detailOptions');
             container.innerHTML = '';
             
@@ -680,35 +651,27 @@
                 return;
             }
             
-            const pathText = selectedPath === 'online' ? '온라인' : '오프라인';
-            const detailText = selectedDetailPath;
-            
             const responseData = {
                 age: formData.age,
                 region: formData.region,
                 gender: formData.gender,
-                path: pathText,
-                detailedPath: detailText,
+                path: selectedPath === 'online' ? '온라인' : '오프라인',
+                detailedPath: selectedDetailPath,
                 timestamp: new Date().toISOString(),
                 date: new Date().toLocaleDateString('ko-KR'),
                 time: new Date().toLocaleTimeString('ko-KR')
             };
             
-            // 1️⃣ localStorage에 저장
-            let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-            responses.push(responseData);
-            localStorage.setItem('consultation-responses', JSON.stringify(responses));
-            
-            // 2️⃣ Firebase에 저장 (동시에 진행)
+            // Firebase에만 저장
             db.ref('consultation-responses').push(responseData, function(error) {
                 if (error) {
-                    console.error('❌ Firebase 저장 실패:', error);
+                    console.error('❌ 저장 실패:', error);
+                    showMessage('message3', '저장 실패: ' + error.message, 'error');
                 } else {
-                    console.log('✅ Firebase 저장 성공:', responseData);
+                    console.log('✅ Firebase 저장 완료');
+                    showCompletion();
                 }
             });
-            
-            showCompletion();
         }
         
         function showCompletion() {
@@ -738,8 +701,6 @@
         
         function closeAdminModal() {
             document.getElementById('adminModal').classList.remove('active');
-            document.getElementById('adminPassword').value = '';
-            document.getElementById('adminError').style.display = 'none';
         }
         
         function checkAdminPassword() {
@@ -757,52 +718,12 @@
         function showAdminDashboard() {
             document.getElementById('formContainer').style.display = 'none';
             document.getElementById('adminDashboard').classList.add('active');
-            loadDashboardData();
+            updateDashboardDisplay(currentResponses);
         }
         
         function exitAdminDashboard() {
             document.getElementById('adminDashboard').classList.remove('active');
             document.getElementById('formContainer').style.display = 'block';
-        }
-        
-        function loadDashboardData() {
-            // 🔑 loadCustomPaths 완료 후 renderPathTags 호출
-            loadCustomPaths(function() {
-                renderPathTags();
-            });
-            
-            // 2️⃣ Firebase에서 데이터 읽기 (Firebase가 유일한 source of truth)
-            db.ref('consultation-responses').once('value', function(snapshot) {
-                const firebaseData = snapshot.val();
-                let firebaseResponses = [];
-                
-                if (firebaseData) {
-                    // 🔑 각 항목에 firebaseKey를 저장!
-                    Object.entries(firebaseData).forEach(([firebaseKey, item]) => {
-                        item.firebaseKey = firebaseKey;
-                        firebaseResponses.push(item);
-                    });
-                }
-
-                // 3️⃣ 🔑 Firebase를 절대적 source of truth로!
-                // Firebase 데이터를 모두 사용하고, 각 항목에 firebaseKey 포함
-                const allResponses = [...firebaseResponses];
-
-                // 4️⃣ 시간순으로 정렬
-                allResponses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-                // ✅ 5️⃣ Firebase 데이터를 localStorage에 저장 (캐시 업데이트)
-                localStorage.setItem('consultation-responses', JSON.stringify(allResponses));
-                
-                console.log('📊 대시보드 데이터 로드 및 동기화:', {
-                    localStorage: allResponses.length,
-                    Firebase: firebaseResponses.length,
-                    합계: allResponses.length
-                });
-                
-                // 6️⃣ 데이터 표시
-                updateDashboardDisplay(allResponses);
-            });
         }
         
         function updateDashboardDisplay(responses) {
@@ -860,34 +781,20 @@
                     <td>${response.detailedPath}</td>
                     <td>${response.time}</td>
                     <td style="text-align: center;">
-                        <button class="btn-delete" data-index="${index}">삭제</button>
+                        <button class="btn-delete" data-key="${response.firebaseKey}">삭제</button>
                     </td>
                 `;
                 
                 const deleteBtn = row.querySelector('.btn-delete');
                 deleteBtn.onclick = function() {
-                    const idx = this.dataset.index;
+                    const key = this.dataset.key;
                     if (confirm('이 항목을 삭제하시겠습니까?')) {
-                        const dataToDelete = responses[parseInt(idx)];
-                        const firebaseKey = dataToDelete.firebaseKey;  // ← firebaseKey 사용!
-
-                        if (!firebaseKey) {
-                            console.error('❌ firebaseKey가 없습니다!');
-                            alert('삭제 실패: 데이터 키를 찾을 수 없습니다');
-                            return;
-                        }
-
-                        console.log(`🗑️ Firebase에서 삭제 시작: ${firebaseKey}`);
-
-                        // 🔑 Firebase key로 직접 삭제!
-                        db.ref('consultation-responses/' + firebaseKey).remove(function(error) {
+                        console.log(`🗑️ 삭제: ${key}`);
+                        db.ref('consultation-responses/' + key).remove(function(error) {
                             if (error) {
-                                console.error('❌ Firebase 삭제 실패:', error);
                                 alert('삭제 실패: ' + error.message);
                             } else {
-                                console.log('✅ Firebase 삭제 성공:', firebaseKey);
-                                // 삭제 완료 후 대시보드 새로고침
-                                loadDashboardData();
+                                console.log('✅ 삭제 완료');
                             }
                         });
                     }
@@ -898,35 +805,19 @@
         }
         
         function refreshDashboard() {
-            loadDashboardData();
-        }
-        
-        function deleteRow(index) {
-            if (confirm('이 항목을 삭제하시겠습니까?')) {
-                let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-                responses.splice(index, 1);
-                localStorage.setItem('consultation-responses', JSON.stringify(responses));
-                loadDashboardData();
-            }
+            console.log('🔄 새로고침');
+            updateDashboardDisplay(currentResponses);
         }
         
         function clearAllData() {
             if (confirm('⚠️ 모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!')) {
                 if (confirm('정말로 삭제하시겠습니까?')) {
-                    // 1️⃣ Firebase에서 삭제
                     db.ref('consultation-responses').remove(function(error) {
                         if (error) {
-                            console.error('❌ Firebase 삭제 실패:', error);
-                            alert('❌ Firebase 삭제 실패: ' + error.message);
+                            alert('❌ 삭제 실패: ' + error.message);
                         } else {
-                            console.log('✅ Firebase 모든 데이터 삭제 완료');
-                            
-                            // 2️⃣ localStorage에서도 삭제
-                            localStorage.setItem('consultation-responses', '[]');
-                            console.log('✅ localStorage도 삭제 완료');
-                            
+                            console.log('✅ 모든 데이터 삭제 완료');
                             alert('✅ 모든 데이터가 삭제되었습니다!');
-                            loadDashboardData();
                         }
                     });
                 }
@@ -934,9 +825,7 @@
         }
         
         function downloadCSV() {
-            const responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-            
-            if (responses.length === 0) {
+            if (currentResponses.length === 0) {
                 alert('다운로드할 데이터가 없습니다.');
                 return;
             }
@@ -944,12 +833,11 @@
             const headers = ['번호', '나이', '지역', '성별', '경로', '상세경로', '시간', '날짜'];
             let csv = headers.join(',') + '\n';
             
-            responses.forEach((response, index) => {
+            currentResponses.forEach((response, index) => {
                 csv += `${index + 1},${response.age},"${response.region}",${response.gender},${response.path},"${response.detailedPath}",${response.time},${response.date}\n`;
             });
             
-            // UTF-8 BOM 추가 - 엑셀에서 한글이 정상적으로 표시되도록
-            const BOM = '\uFEFF';
+            const BOM = '﻿';
             const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
@@ -959,7 +847,6 @@
         }
         
         function openAddItemModal() {
-            // 🔑 이미 메모리에 있는 customPaths를 사용 (Firebase 읽기 불필요!)
             document.getElementById('addItemModal').classList.add('active');
             document.getElementById('addAge').value = '';
             document.getElementById('addRegion').value = '';
@@ -968,7 +855,6 @@
             document.getElementById('addDetailPath').innerHTML = '<option value="">-- 선택 --</option>';
             document.getElementById('addItemError').style.display = 'none';
             document.getElementById('addItemError').textContent = '';
-            console.log('항목추가 모달 열기 - customPaths:', customPaths);
         }
         
         function closeAddItemModal() {
@@ -980,13 +866,8 @@
                 const path = e.target.value;
                 const selectElement = document.getElementById('addDetailPath');
                 selectElement.innerHTML = '<option value="">-- 선택 --</option>';
-
-                // 🔑 이미 메모리의 customPaths 사용 (Firebase 읽기 불필요!)
                 const pathType = path === '온라인' ? 'online' : 'offline';
                 const options = customPaths[pathType] || [];
-
-                console.log(`경로 선택: ${path}, 옵션:`, options);
-
                 options.forEach(pathName => {
                     const option = document.createElement('option');
                     option.value = pathName;
@@ -1028,22 +909,15 @@
                 time: new Date().toLocaleTimeString('ko-KR')
             };
             
-            // 1️⃣ localStorage에 저장
-            let responses = JSON.parse(localStorage.getItem('consultation-responses') || '[]');
-            responses.push(responseData);
-            localStorage.setItem('consultation-responses', JSON.stringify(responses));
-            
-            // 2️⃣ Firebase에 저장 (동시에 진행)
             db.ref('consultation-responses').push(responseData, function(error) {
                 if (error) {
-                    console.error('❌ Firebase 저장 실패:', error);
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = '저장 실패: ' + error.message;
                 } else {
-                    console.log('✅ Firebase 저장 성공:', responseData);
+                    console.log('✅ 항목 추가 완료');
+                    closeAddItemModal();
                 }
             });
-            
-            closeAddItemModal();
-            loadDashboardData();
         }
     </script>
 </body>
