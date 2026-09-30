@@ -17,7 +17,7 @@
         h1 { font-size: 2.5rem; color: #333; margin-bottom: 15px; }
         .subtitle { font-size: 1.3rem; color: #666; margin-bottom: 40px; }
         .step-content { display: none; }
-        .step-content.active { display: block; animation: fadeIn 0.3s ease; max-height: 70vh; overflow-y: auto; padding-right: 10px; }
+        .step-content.active { display: block; animation: fadeIn 0.3s ease; max-height: 75vh; overflow-y: auto; padding-right: 10px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .form-group { margin-bottom: 25px; text-align: left; }
         .form-group label { display: block; font-size: 1.1rem; color: #333; margin-bottom: 8px; font-weight: 600; }
@@ -44,6 +44,7 @@
         .btn-secondary { background: #ddd; color: #333; }
         .btn-secondary:hover { background: #bbb; }
         .btn-success { background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; }
+        .btn-small { padding: 8px 16px; font-size: 0.9rem; }
         .message { padding: 20px; border-radius: 10px; margin-top: 25px; font-size: 1.1rem; display: none; }
         .message.show { display: block; }
         .message.success { background: #c8e6c9; color: #2e7d32; }
@@ -56,7 +57,20 @@
         .subquestion { display: none; padding: 15px; background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 5px; margin-top: 10px; }
         .subquestion.show { display: block; animation: slideIn 0.3s ease; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .print-section { background: white; padding: 20px; border: 1px solid #ddd; border-radius: 10px; margin-top: 20px; text-align: left; }
+        .admin-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-size: 1.8rem; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.2); transition: all 0.3s ease; z-index: 500; }
+        .admin-btn:hover { transform: scale(1.1); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 90%; max-width: 600px; text-align: center; max-height: 80vh; overflow-y: auto; }
+        .modal-content h2 { font-size: 1.6rem; color: #333; margin-bottom: 20px; }
+        .modal-content input, .modal-content select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 15px; font-family: inherit; }
+        .modal-content input:focus, .modal-content select:focus { outline: none; border-color: #667eea; }
+        .modal-buttons { display: flex; gap: 15px; }
+        .modal-buttons button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; }
+        .btn-modal-cancel { background: #ddd; color: #333; }
+        .btn-modal-ok { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .modal-error { color: #c62828; font-size: 0.9rem; margin-top: 10px; display: none; }
+        .print-section { background: white; padding: 20px; border: 1px solid #ddd; border-radius: 10px; margin-top: 20px; }
         .print-section h3 { font-size: 1.2rem; color: #333; margin-bottom: 15px; font-weight: 700; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
         .print-section p { margin-bottom: 8px; font-size: 1rem; line-height: 1.6; }
         .print-label { font-weight: 600; color: #667eea; }
@@ -73,6 +87,7 @@
             .completion-screen h2 { display: none !important; }
             .completion-screen > p { display: none !important; }
             .button-group { display: none !important; }
+            .admin-btn { display: none !important; }
             #printContent { display: block !important; }
             .print-section {
                 page-break-inside: avoid;
@@ -103,45 +118,22 @@
                 <div class="step active">1</div>
                 <div class="step">2</div>
                 <div class="step">3</div>
+                <div class="step">4</div>
+                <div class="step">5</div>
             </div>
 
-            <!-- Step 1: 유입경로 선택 -->
+            <!-- Step 1: 기본 정보 -->
             <div class="step-content active" id="content1">
-                <h1>방문 경로 선택 🚀</h1>
-                <p class="subtitle">어떻게 저희를 알게 되셨나요?</p>
-                <div class="options-grid">
-                    <button class="option-btn" onclick="selectPath('online')">🌐 온라인</button>
-                    <button class="option-btn" onclick="selectPath('offline')">🏪 오프라인</button>
+                <h1>고객 정보 입력 📋</h1>
+                <p class="subtitle">아래 정보를 입력해주세요</p>
+                <div class="form-group">
+                    <label>나이</label>
+                    <input type="number" id="age" placeholder="예: 35" min="10" max="120">
                 </div>
-
-                <div id="detailPathSection" style="display: none;">
-                    <h1 id="step1Title">상세 경로 선택</h1>
-                    <p class="subtitle">정확한 경로를 선택해주세요</p>
-                    <div class="options-grid" id="detailOptions"></div>
+                <div class="form-group">
+                    <label>거주 지역</label>
+                    <input type="text" id="region" placeholder="예: 대구 남구">
                 </div>
-
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="nextStep1()" id="nextBtn1" disabled>다음</button>
-                </div>
-                <div class="message" id="message1"></div>
-            </div>
-
-            <!-- Step 2: 개인정보 -->
-            <div class="step-content" id="content2">
-                <h1>개인 정보 📝</h1>
-                <p class="subtitle">고객님의 기본 정보를 입력해주세요</p>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>나이</label>
-                        <input type="number" id="age" placeholder="예: 35" min="10" max="120">
-                    </div>
-                    <div class="form-group">
-                        <label>거주 지역</label>
-                        <input type="text" id="region" placeholder="예: 대구 남구">
-                    </div>
-                </div>
-
                 <div class="form-group">
                     <label>성별</label>
                     <div class="radio-group">
@@ -155,6 +147,43 @@
                         </div>
                     </div>
                 </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="nextStep1()">다음</button>
+                </div>
+                <div class="message" id="message1"></div>
+            </div>
+
+            <!-- Step 2: 방문 경로 선택 -->
+            <div class="step-content" id="content2">
+                <h1>방문 경로 선택 🚀</h1>
+                <p class="subtitle">어떻게 저희를 알게 되셨나요?</p>
+                <div class="options-grid">
+                    <button class="option-btn" onclick="selectPath('online')">🌐 온라인</button>
+                    <button class="option-btn" onclick="selectPath('offline')">🏪 오프라인</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep2()" id="nextBtn2" disabled>다음</button>
+                </div>
+                <div class="message" id="message2"></div>
+            </div>
+
+            <!-- Step 3: 상세 경로 선택 -->
+            <div class="step-content" id="content3">
+                <h1 id="step3Title">상세 경로 선택</h1>
+                <p class="subtitle">정확한 경로를 선택해주세요</p>
+                <div class="options-grid" id="detailOptions"></div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep3()" id="nextBtn3" disabled>다음</button>
+                </div>
+                <div class="message" id="message3"></div>
+            </div>
+
+            <!-- Step 4: 신규 고객 정보 수집 -->
+            <div class="step-content" id="content4">
+                <h1>신규 고객 정보 📝</h1>
+                <p class="subtitle">고객님의 기본 정보를 입력해주세요</p>
 
                 <div class="form-group">
                     <label>성명</label>
@@ -179,17 +208,17 @@
 
                 <div class="button-group">
                     <button class="btn btn-secondary" onclick="prevStep()">이전</button>
-                    <button class="btn btn-primary" onclick="nextStep2()" id="nextBtn2">다음</button>
+                    <button class="btn btn-primary" onclick="nextStep4()" id="nextBtn4">다음</button>
                 </div>
-                <div class="message" id="message2"></div>
+                <div class="message" id="message4"></div>
             </div>
 
-            <!-- Step 3: 난청정보 설문 -->
-            <div class="step-content" id="content3">
+            <!-- Step 5: 난청 상담 설문 (확장버전) -->
+            <div class="step-content" id="content5">
                 <h1>난청 상담 설문 🎧</h1>
                 <p class="subtitle">청력 관련 정보를 입력해주세요</p>
 
-                <!-- 난청 정보 -->
+                <!-- ① 난청 정보 -->
                 <div class="section-title">① 난청 정보</div>
 
                 <div class="form-group">
@@ -270,7 +299,7 @@
                                     <label for="disease6">기타</label>
                                 </div>
                             </div>
-                            <div class="subquestion" id="diseaseOther">
+                            <div class="subquestion" id="diseaseOther" style="margin-top: 10px; padding: 0; background: transparent; border: none;">
                                 <input type="text" class="text-input" name="earDiseaseOther" placeholder="질환명을 입력해주세요">
                             </div>
                         </div>
@@ -291,7 +320,7 @@
                     </div>
                 </div>
 
-                <!-- 현재 불편 -->
+                <!-- ② 현재 불편 -->
                 <div class="section-title">② 현재 가장 불편한 상황 (중복 선택)</div>
 
                 <div class="form-group">
@@ -330,7 +359,7 @@
                     </div>
                 </div>
 
-                <!-- 생활환경 -->
+                <!-- ③ 생활환경 -->
                 <div class="section-title">③ 생활환경</div>
 
                 <div class="form-group">
@@ -378,7 +407,7 @@
                     </div>
                 </div>
 
-                <!-- 보청기 경험 -->
+                <!-- ④ 보청기 경험 -->
                 <div class="section-title">④ 보청기 경험</div>
 
                 <div class="form-group">
@@ -419,7 +448,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="currentExpOnly" style="display: none;">
+                        <div id="currentExpOnly">
                             <div class="form-group">
                                 <label>가장 불만이었던 점:</label>
                                 <input type="text" class="text-input" id="expDislike" placeholder="">
@@ -438,7 +467,7 @@
                     </div>
                 </div>
 
-                <!-- 귀 관련 증상 -->
+                <!-- ⑤ 귀 관련 증상 -->
                 <div class="section-title">⑤ 귀 관련 증상</div>
 
                 <div class="form-group">
@@ -502,7 +531,7 @@
                     </div>
                 </div>
 
-                <!-- 청각장애 -->
+                <!-- ⑥ 청각장애 -->
                 <div class="section-title">⑥ 청각장애 등록</div>
 
                 <div class="form-group">
@@ -539,7 +568,7 @@
                     </div>
                 </div>
 
-                <!-- 목표 -->
+                <!-- ⑦ 목표 -->
                 <div class="section-title">⑦ 보청기 사용 목표</div>
 
                 <div class="form-group">
@@ -551,7 +580,7 @@
                     <button class="btn btn-secondary" onclick="prevStep()">이전</button>
                     <button class="btn btn-success" onclick="submitForm()" id="submitBtn">완료</button>
                 </div>
-                <div class="message" id="message3"></div>
+                <div class="message" id="message5"></div>
             </div>
 
             <!-- 완료 화면 -->
@@ -593,18 +622,17 @@
         </div>
     </div>
 
-    <!-- 관리자 버튼 -->
-    <button class="admin-btn" onclick="openAdminModal()" style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-size: 1.8rem; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.2); transition: all 0.3s ease; z-index: 500;">⚙️</button>
+    <button class="admin-btn" onclick="openAdminModal()">⚙️</button>
 
     <!-- Admin Modal -->
-    <div class="modal-overlay" id="adminModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div class="modal-content" style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 90%; max-width: 600px; text-align: center; max-height: 80vh; overflow-y: auto;">
-            <h2 style="font-size: 1.6rem; color: #333; margin-bottom: 20px;">관리자 모드</h2>
-            <input type="password" id="adminPassword" placeholder="암호를 입력하세요" onkeypress="if(event.key==='Enter') checkAdminPassword()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 15px; font-family: inherit;">
-            <div id="adminError" style="color: #c62828; font-size: 0.9rem; margin-top: 10px; display: none;">암호가 올바르지 않습니다</div>
-            <div style="display: flex; gap: 15px; margin-top: 20px;">
-                <button style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; background: #ddd; color: #333;" onclick="closeAdminModal()">취소</button>
-                <button style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" onclick="checkAdminPassword()">확인</button>
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-content">
+            <h2>관리자 모드</h2>
+            <input type="password" id="adminPassword" placeholder="암호를 입력하세요" onkeypress="if(event.key==='Enter') checkAdminPassword()">
+            <div class="modal-error" id="adminError">암호가 올바르지 않습니다</div>
+            <div class="modal-buttons">
+                <button class="btn-modal-cancel" onclick="closeAdminModal()">취소</button>
+                <button class="btn-modal-ok" onclick="checkAdminPassword()">확인</button>
             </div>
         </div>
     </div>
@@ -624,13 +652,9 @@
         const db = firebase.database();
 
         let customPaths = { online: {}, offline: {} };
-        let currentStep = 1;
-        let selectedPath = null;
-        let selectedDetailPath = null;
-        let formData = {};
+        let currentResponses = [];
         let lastFormData = {};
         const ADMIN_PASSWORD = 'tlrmsldkskarn';
-        let currentResponses = [];
 
         const defaultPaths = {
             online: ['네이버', '유튜브', '블로그', '카카오톡', '스마트스토어', '구글', '기타 온라인'],
@@ -640,10 +664,12 @@
         // Firebase Realtime Listeners
         db.ref('custom-paths/online').on('value', function(snapshot) {
             customPaths.online = snapshot.val() || {};
+            renderPathTags();
         });
 
         db.ref('custom-paths/offline').on('value', function(snapshot) {
             customPaths.offline = snapshot.val() || {};
+            renderPathTags();
         });
 
         db.ref('consultation-responses').on('value', function(snapshot) {
@@ -680,6 +706,17 @@
 
         initializePaths();
 
+        function renderPathTags() {
+            const onlineContainer = document.getElementById('onlinePathContainer');
+            const offlineContainer = document.getElementById('offlinePathContainer');
+            if (!onlineContainer || !offlineContainer) return;
+        }
+
+        let currentStep = 1;
+        let selectedPath = null;
+        let selectedDetailPath = null;
+        let formData = {};
+
         function goToStep(step) {
             document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
             document.getElementById('content' + step).classList.add('active');
@@ -688,7 +725,6 @@
                 if (i + 1 === step) el.classList.add('active');
             });
             currentStep = step;
-            window.scrollTo(0, 0);
         }
 
         function showMessage(msgId, text, type) {
@@ -698,13 +734,74 @@
             setTimeout(() => msg.classList.remove('show'), 4000);
         }
 
+        function nextStep1() {
+            const age = document.getElementById('age').value.trim();
+            const region = document.getElementById('region').value.trim();
+            const gender = document.querySelector('input[name="gender"]:checked');
+
+            if (!age || !region || !gender) {
+                showMessage('message1', '모든 항목을 입력해주세요', 'error');
+                return;
+            }
+            if (isNaN(age) || age < 10 || age > 120) {
+                showMessage('message1', '올바른 나이를 입력해주세요', 'error');
+                return;
+            }
+
+            formData.age = age;
+            formData.region = region;
+            formData.gender = gender.value;
+            goToStep(2);
+        }
+
+        function nextStep2() {
+            if (!selectedPath) {
+                showMessage('message2', '방문 경로를 선택해주세요', 'error');
+                return;
+            }
+            renderDetailOptions();
+            goToStep(3);
+        }
+
+        function nextStep3() {
+            if (!selectedDetailPath) {
+                showMessage('message3', '상세 경로를 선택해주세요', 'error');
+                return;
+            }
+            goToStep(4);
+        }
+
+        function nextStep4() {
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const birthdate = document.getElementById('customerBirthdate').value;
+            const address = document.getElementById('customerAddress').value.trim();
+
+            if (!name || !phone || !birthdate || !address) {
+                showMessage('message4', '모든 항목을 입력해주세요', 'error');
+                return;
+            }
+
+            formData.name = name;
+            formData.phone = phone;
+            formData.birthdate = birthdate;
+            formData.address = address;
+            goToStep(5);
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                if (currentStep === 3) selectedDetailPath = null;
+                goToStep(currentStep - 1);
+            }
+        }
+
         function selectPath(path) {
             selectedPath = path;
             selectedDetailPath = null;
-            document.querySelectorAll('#content1 .option-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('#content2 .option-btn').forEach(btn => btn.classList.remove('selected'));
             event.target.closest('.option-btn').classList.add('selected');
-            renderDetailOptions();
-            document.getElementById('detailPathSection').style.display = 'block';
+            document.getElementById('nextBtn2').disabled = false;
         }
 
         function renderDetailOptions() {
@@ -713,7 +810,7 @@
             const pathType = selectedPath === 'online' ? 'online' : 'offline';
             const options = Object.values(customPaths[pathType] || {});
             const title = selectedPath === 'online' ? '🌐 온라인' : '🏪 오프라인';
-            document.getElementById('step1Title').textContent = title + ' 선택';
+            document.getElementById('step3Title').textContent = title + ' 선택';
 
             options.forEach((pathName) => {
                 const btn = document.createElement('button');
@@ -722,57 +819,13 @@
                 btn.onclick = function() { selectDetailPath(pathName, this); };
                 container.appendChild(btn);
             });
-
-            document.getElementById('nextBtn1').disabled = true;
         }
 
         function selectDetailPath(pathName, btn) {
             selectedDetailPath = pathName;
             document.querySelectorAll('#detailOptions .option-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            document.getElementById('nextBtn1').disabled = false;
-        }
-
-        function nextStep1() {
-            if (!selectedDetailPath) {
-                showMessage('message1', '상세 경로를 선택해주세요', 'error');
-                return;
-            }
-            goToStep(2);
-        }
-
-        function nextStep2() {
-            const age = document.getElementById('age').value.trim();
-            const region = document.getElementById('region').value.trim();
-            const gender = document.querySelector('input[name="gender"]:checked');
-            const name = document.getElementById('customerName').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
-            const birthdate = document.getElementById('customerBirthdate').value;
-            const address = document.getElementById('customerAddress').value.trim();
-
-            if (!age || !region || !gender || !name || !phone || !birthdate || !address) {
-                showMessage('message2', '모든 항목을 입력해주세요', 'error');
-                return;
-            }
-            if (isNaN(age) || age < 10 || age > 120) {
-                showMessage('message2', '올바른 나이를 입력해주세요', 'error');
-                return;
-            }
-
-            formData.age = age;
-            formData.region = region;
-            formData.gender = gender.value;
-            formData.name = name;
-            formData.phone = phone;
-            formData.birthdate = birthdate;
-            formData.address = address;
-            goToStep(3);
-        }
-
-        function prevStep() {
-            if (currentStep > 1) {
-                goToStep(currentStep - 1);
-            }
+            document.getElementById('nextBtn3').disabled = false;
         }
 
         function toggleSubquestion(id) {
@@ -862,7 +915,7 @@
             db.ref('consultation-responses').push(responseData, function(error) {
                 if (error) {
                     console.error('❌ 저장 실패:', error);
-                    showMessage('message3', '저장 실패: ' + error.message, 'error');
+                    showMessage('message5', '저장 실패: ' + error.message, 'error');
                 } else {
                     showCompletion();
                 }
@@ -900,44 +953,30 @@
             document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input[type="tel"], textarea').forEach(el => el.value = '');
             document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.checked = false);
             document.querySelectorAll('.subquestion').forEach(el => el.classList.remove('show'));
-            document.getElementById('detailPathSection').style.display = 'none';
             document.getElementById('completionScreen').classList.remove('active');
             goToStep(1);
         }
 
-        // 관리자 기능
         function openAdminModal() {
-            document.getElementById('adminModal').style.display = 'flex';
+            document.getElementById('adminModal').classList.add('active');
             document.getElementById('adminPassword').value = '';
             document.getElementById('adminError').style.display = 'none';
             document.getElementById('adminPassword').focus();
         }
 
         function closeAdminModal() {
-            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('adminModal').classList.remove('active');
         }
 
         function checkAdminPassword() {
             const password = document.getElementById('adminPassword').value;
             if (password === ADMIN_PASSWORD) {
                 closeAdminModal();
-                showAdminDashboard();
+                alert('📊 관리자 대시보드\n\n총 상담 건수: ' + currentResponses.length + '\n\n상담 데이터는 Firebase에 자동 저장됩니다.');
             } else {
                 document.getElementById('adminError').style.display = 'block';
                 document.getElementById('adminPassword').value = '';
                 document.getElementById('adminPassword').focus();
-            }
-        }
-
-        function showAdminDashboard() {
-            alert('📊 관리자 대시보드\n\n총 상담 건수: ' + currentResponses.length + '\n\n상담 데이터는 Firebase에 자동 저장됩니다.');
-
-            if (currentResponses.length > 0) {
-                let dataText = '최근 상담 정보:\n\n';
-                currentResponses.slice(-5).reverse().forEach((r, i) => {
-                    dataText += (i+1) + '. ' + (r.name || '미입력') + ' / ' + (r.phone || '미입력') + '\n';
-                });
-                alert(dataText);
             }
         }
     </script>
