@@ -65,17 +65,20 @@
             * { margin: 0; padding: 0; box-sizing: border-box; }
             html, body { background: white; font-size: 10pt; width: 100%; line-height: 1.5; }
             .container { max-width: 100%; padding: 8mm !important; margin: 0 !important; }
-            .form-container { box-shadow: none !important; padding: 0 !important; background: white !important; display: none; }
-            .button-group { display: none !important; }
+            .form-container { box-shadow: none !important; padding: 0 !important; background: white !important; display: block !important; }
+            .step-content { display: none !important; }
             .step-indicator { display: none !important; }
+            .completion-screen { display: block !important; }
             .completion-icon { display: none !important; }
             .completion-screen h2 { display: none !important; }
             .completion-screen > p { display: none !important; }
+            .button-group { display: none !important; }
+            #printContent { display: block !important; }
             .print-section {
                 page-break-inside: avoid;
                 margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
+                padding: 20px !important;
+                border: 1px solid #ddd !important;
                 background: white !important;
                 box-shadow: none !important;
             }
@@ -590,6 +593,22 @@
         </div>
     </div>
 
+    <!-- 관리자 버튼 -->
+    <button class="admin-btn" onclick="openAdminModal()" style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-size: 1.8rem; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.2); transition: all 0.3s ease; z-index: 500;">⚙️</button>
+
+    <!-- Admin Modal -->
+    <div class="modal-overlay" id="adminModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 90%; max-width: 600px; text-align: center; max-height: 80vh; overflow-y: auto;">
+            <h2 style="font-size: 1.6rem; color: #333; margin-bottom: 20px;">관리자 모드</h2>
+            <input type="password" id="adminPassword" placeholder="암호를 입력하세요" onkeypress="if(event.key==='Enter') checkAdminPassword()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 15px; font-family: inherit;">
+            <div id="adminError" style="color: #c62828; font-size: 0.9rem; margin-top: 10px; display: none;">암호가 올바르지 않습니다</div>
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; background: #ddd; color: #333;" onclick="closeAdminModal()">취소</button>
+                <button style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" onclick="checkAdminPassword()">확인</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCtmLdXNUW8r4u-KbNZMFfJ8Zyi0QgR1po",
@@ -610,6 +629,8 @@
         let selectedDetailPath = null;
         let formData = {};
         let lastFormData = {};
+        const ADMIN_PASSWORD = 'tlrmsldkskarn';
+        let currentResponses = [];
 
         const defaultPaths = {
             online: ['네이버', '유튜브', '블로그', '카카오톡', '스마트스토어', '구글', '기타 온라인'],
@@ -623,6 +644,17 @@
 
         db.ref('custom-paths/offline').on('value', function(snapshot) {
             customPaths.offline = snapshot.val() || {};
+        });
+
+        db.ref('consultation-responses').on('value', function(snapshot) {
+            const firebaseData = snapshot.val() || {};
+            let responses = [];
+            Object.entries(firebaseData).forEach(([key, item]) => {
+                item.firebaseKey = key;
+                responses.push(item);
+            });
+            responses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            currentResponses = responses;
         });
 
         function initializePaths() {
@@ -871,6 +903,42 @@
             document.getElementById('detailPathSection').style.display = 'none';
             document.getElementById('completionScreen').classList.remove('active');
             goToStep(1);
+        }
+
+        // 관리자 기능
+        function openAdminModal() {
+            document.getElementById('adminModal').style.display = 'flex';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminError').style.display = 'none';
+            document.getElementById('adminPassword').focus();
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
+
+        function checkAdminPassword() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                closeAdminModal();
+                showAdminDashboard();
+            } else {
+                document.getElementById('adminError').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        function showAdminDashboard() {
+            alert('📊 관리자 대시보드\n\n총 상담 건수: ' + currentResponses.length + '\n\n상담 데이터는 Firebase에 자동 저장됩니다.');
+
+            if (currentResponses.length > 0) {
+                let dataText = '최근 상담 정보:\n\n';
+                currentResponses.slice(-5).reverse().forEach((r, i) => {
+                    dataText += (i+1) + '. ' + (r.name || '미입력') + ' / ' + (r.phone || '미입력') + '\n';
+                });
+                alert(dataText);
+            }
         }
     </script>
 </body>
