@@ -782,8 +782,6 @@
         }
 
         function submitForm() {
-            const formDataObj = new FormData(document.querySelector('form') || document.getElementById('content3'));
-
             const earDiseases = Array.from(document.querySelectorAll('input[name="earDisease"]:checked')).map(el => el.value);
             const discomforts = Array.from(document.querySelectorAll('input[name="discomfort"]:checked')).map(el => el.value);
 
