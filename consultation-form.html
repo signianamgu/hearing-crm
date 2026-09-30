@@ -88,16 +88,20 @@
 
         /* 인쇄용 스타일 */
         @media print {
-            * { margin: 0; padding: 0; }
-            body { background: white; font-size: 12pt; width: 100%; }
-            .container { max-width: 100%; padding: 10mm !important; margin: 0 !important; }
-            .form-container { box-shadow: none; padding: 10mm; background: white; }
-            .admin-btn { display: none; }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { background: white; font-size: 11pt; width: 100%; line-height: 1.4; }
+            .container { max-width: 100%; padding: 0 !important; margin: 0 !important; }
+            .form-container { box-shadow: none; padding: 0; background: white; }
+            .admin-btn { display: none !important; }
             .no-print { display: none !important; }
+            .button-group { display: none !important; }
             .print-only { display: block !important; }
             .completion-screen { page-break-after: avoid; }
-            .print-section { page-break-inside: avoid; }
-            @page { margin: 10mm; size: A4; }
+            .print-section { page-break-inside: avoid; margin: 0; padding: 0; border: none; }
+            .print-section h3 { margin: 0 0 10px 0; padding: 0 0 5px 0; font-size: 1rem; }
+            .print-section p { margin: 3px 0; padding: 0; font-size: 0.9rem; }
+            .print-section-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 10px 0; }
+            @page { margin: 8mm; size: A4; orphans: 3; widows: 3; }
         }
 
         .print-only { display: none; }
@@ -764,12 +768,18 @@
         function downloadPDF() {
             const element = document.getElementById('printContent');
             const opt = {
-                margin: [8, 8, 8, 8],
+                margin: 5,
                 filename: `상담결과_${lastFormData.name || '고객'}_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 1.2, useCORS: true, allowTaint: true },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                },
                 jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
-                pagebreak: { mode: 'avoid-all' }
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
             html2pdf().set(opt).from(element).save();
         }
@@ -836,9 +846,12 @@
             const online = responses.filter(r => r.path === '온라인').length;
             const offline = responses.filter(r => r.path === '오프라인').length;
 
+            const onlinePercent = total > 0 ? Math.round((online / total) * 100) : 0;
+            const offlinePercent = total > 0 ? Math.round((offline / total) * 100) : 0;
+
             document.getElementById('totalCount').textContent = total;
-            document.getElementById('onlineCount').textContent = online;
-            document.getElementById('offlineCount').textContent = offline;
+            document.getElementById('onlineCount').innerHTML = `${online}<br><small style="font-size: 0.7rem; opacity: 0.8;">(${onlinePercent}%)</small>`;
+            document.getElementById('offlineCount').innerHTML = `${offline}<br><small style="font-size: 0.7rem; opacity: 0.8;">(${offlinePercent}%)</small>`;
 
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '';
@@ -932,12 +945,18 @@
         function downloadDetailPDF() {
             const content = document.getElementById('detailContent');
             const opt = {
-                margin: [8, 8, 8, 8],
+                margin: 5,
                 filename: `상담결과_${lastFormData.name || '고객'}_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 1.2, useCORS: true, allowTaint: true },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                },
                 jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
-                pagebreak: { mode: 'avoid-all' }
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
             html2pdf().set(opt).from(content).save();
         }
