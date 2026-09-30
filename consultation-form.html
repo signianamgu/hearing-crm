@@ -88,13 +88,16 @@
 
         /* 인쇄용 스타일 */
         @media print {
-            body { background: white; }
-            .container { max-width: 100%; }
-            .form-container { box-shadow: none; padding: 20px; }
+            * { margin: 0; padding: 0; }
+            body { background: white; font-size: 12pt; width: 100%; }
+            .container { max-width: 100%; padding: 10mm !important; margin: 0 !important; }
+            .form-container { box-shadow: none; padding: 10mm; background: white; }
             .admin-btn { display: none; }
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             .completion-screen { page-break-after: avoid; }
+            .print-section { page-break-inside: avoid; }
+            @page { margin: 10mm; size: A4; }
         }
 
         .print-only { display: none; }
@@ -761,11 +764,12 @@
         function downloadPDF() {
             const element = document.getElementById('printContent');
             const opt = {
-                margin: 10,
+                margin: [8, 8, 8, 8],
                 filename: `상담결과_${lastFormData.name || '고객'}_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                html2canvas: { scale: 1.2, useCORS: true, allowTaint: true },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
+                pagebreak: { mode: 'avoid-all' }
             };
             html2pdf().set(opt).from(element).save();
         }
@@ -928,11 +932,12 @@
         function downloadDetailPDF() {
             const content = document.getElementById('detailContent');
             const opt = {
-                margin: 10,
+                margin: [8, 8, 8, 8],
                 filename: `상담결과_${lastFormData.name || '고객'}_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                html2canvas: { scale: 1.2, useCORS: true, allowTaint: true },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
+                pagebreak: { mode: 'avoid-all' }
             };
             html2pdf().set(opt).from(content).save();
         }
