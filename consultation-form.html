@@ -88,8 +88,8 @@
         /* 인쇄용 스타일 */
         @media print {
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            html, body { background: white; font-size: 10pt; width: 100%; line-height: 1.5; }
-            .container { max-width: 100%; padding: 8mm !important; margin: 0 !important; }
+            html, body { background: white; font-size: 8.5pt; width: 100%; line-height: 1.2; }
+            .container { max-width: 100%; padding: 4mm !important; margin: 0 !important; }
             .form-container { box-shadow: none !important; padding: 0 !important; background: white !important; display: none; }
             .admin-dashboard { display: none !important; }
             .admin-btn { display: none !important; }
@@ -110,10 +110,14 @@
                 background: white !important;
                 box-shadow: none !important;
             }
-            .print-section h3 { margin: 0 0 8px 0 !important; padding: 0 !important; font-size: 11pt !important; font-weight: 700; }
-            .print-section p { margin: 2px 0 !important; padding: 0 !important; font-size: 9pt !important; }
+            .print-section > div { border: none !important; padding: 0 !important; margin: 0 !important; }
+            #printContent { font-size: 8.5pt; }
+            #printContent > div { padding: 0 !important; border: none !important; margin: 0 !important; }
+            #printContent p { margin: 1px 0 !important; padding: 0 !important; }
+            .print-section h3 { margin: 3px 0 2px 0 !important; padding: 0 !important; font-size: 9pt !important; font-weight: 700; }
+            .print-section p { margin: 1px 0 !important; padding: 0 !important; font-size: 8pt !important; line-height: 1.1; }
             .print-label { font-weight: 600; }
-            @page { margin: 6mm; size: A4; orphans: 3; widows: 3; }
+            @page { margin: 4mm; size: A4; orphans: 3; widows: 3; }
         }
 
         .print-only { display: none; }
@@ -602,25 +606,59 @@
 
                 <!-- 결과 출력 영역 -->
                 <div class="print-section" id="printContent" style="text-align: left; background: white; border: none; padding: 0; margin: 20px 0;">
-                    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
-                        <h3 style="margin: 0 0 15px 0;">📋 상담 결과 요약</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
-                            <div>
-                                <p style="margin-bottom: 8px;"><span class="print-label">성명:</span> <span id="printName" style="font-weight: normal;">-</span></p>
-                                <p style="margin-bottom: 8px;"><span class="print-label">전화:</span> <span id="printPhone" style="font-weight: normal;">-</span></p>
-                                <p style="margin-bottom: 8px;"><span class="print-label">주소:</span> <span id="printAddress" style="font-weight: normal;">-</span></p>
-                            </div>
-                            <div>
-                                <p style="margin-bottom: 8px;"><span class="print-label">나이:</span> <span id="printAge" style="font-weight: normal;">-</span></p>
-                                <p style="margin-bottom: 8px;"><span class="print-label">성별:</span> <span id="printGender" style="font-weight: normal;">-</span></p>
-                                <p style="margin-bottom: 8px;"><span class="print-label">생년월일:</span> <span id="printBirthdate" style="font-weight: normal;">-</span></p>
-                            </div>
+                    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 10px; font-size: 0.9rem;">
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;">📋 상담 결과 요약</h3>
+
+                        <!-- 기본정보 -->
+                        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                            <p style="margin: 0 0 5px 0;"><span class="print-label">성명:</span> <span id="printName">-</span> | <span class="print-label">전화:</span> <span id="printPhone">-</span> | <span class="print-label">나이:</span> <span id="printAge">-</span> | <span class="print-label">성별:</span> <span id="printGender">-</span></p>
+                            <p style="margin: 5px 0 0 0;"><span class="print-label">주소:</span> <span id="printAddress">-</span></p>
+                            <p style="margin: 5px 0 0 0;"><span class="print-label">방문경로:</span> <span id="printPath">-</span> > <span id="printDetailPath">-</span></p>
                         </div>
-                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-                            <p style="margin-bottom: 8px;"><span class="print-label">방문경로:</span> <span id="printPath" style="font-weight: normal;">-</span> > <span id="printDetailPath" style="font-weight: normal;">-</span></p>
-                            <p style="margin-bottom: 8px;"><span class="print-label">난청기간:</span> <span id="printDuration" style="font-weight: normal;">-</span></p>
-                            <p style="margin-bottom: 8px;"><span class="print-label">나쁜 귀:</span> <span id="printBadEar" style="font-weight: normal;">-</span></p>
-                            <p style="margin-bottom: 0;"><span class="print-label">보청기경험:</span> <span id="printHearingAid" style="font-weight: normal;">-</span></p>
+
+                        <!-- 난청정보 -->
+                        <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                            <p style="margin: 0 0 3px 0; font-weight: 600;">① 난청정보</p>
+                            <p style="margin: 3px 0;"><span class="print-label">경과:</span> <span id="printHearingLossTime">-</span> | <span class="print-label">발병:</span> <span id="printOnset">-</span> | <span class="print-label">더 안 좋은 귀:</span> <span id="printWorse">-</span></p>
+                            <p style="margin: 3px 0;"><span class="print-label">이비인후과:</span> <span id="printClinic">-</span> | <span class="print-label">진단질환:</span> <span id="printEarDiseases">-</span></p>
+                            <p style="margin: 3px 0;"><span class="print-label">청력검사:</span> <span id="printTest">-</span></p>
+                        </div>
+
+                        <!-- 현재 불편 -->
+                        <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                            <p style="margin: 0 0 3px 0; font-weight: 600;">② 현재 불편: <span id="printDiscomforts">-</span></p>
+                        </div>
+
+                        <!-- 생활환경 -->
+                        <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                            <p style="margin: 0 0 3px 0; font-weight: 600;">③ 생활환경</p>
+                            <p style="margin: 3px 0;"><span class="print-label">주요 대화:</span> <span id="printMainContact">-</span> | <span class="print-label">가족:</span> <span id="printFamily">-</span> | <span class="print-label">외출·모임:</span> <span id="printActivity">-</span></p>
+                        </div>
+
+                        <!-- 보청기 경험 -->
+                        <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                            <p style="margin: 0 0 3px 0; font-weight: 600;">④ 보청기 경험</p>
+                            <p style="margin: 3px 0;"><span class="print-label">경험:</span> <span id="printExperience">-</span> | <span class="print-label">제조사:</span> <span id="printExpProduct">-</span> | <span class="print-label">착용:</span> <span id="printDirection">-</span></p>
+                            <p style="margin: 3px 0;"><span class="print-label">만족:</span> <span id="printExpSatisfy">-</span> | <span class="print-label">불만:</span> <span id="printExpDislike">-</span></p>
+                        </div>
+
+                        <!-- 귀 관련 증상 -->
+                        <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                            <p style="margin: 0 0 3px 0; font-weight: 600;">⑤ 귀 관련 증상</p>
+                            <p style="margin: 3px 0;"><span class="print-label">이명:</span> <span id="printTinnitus">-</span> | <span class="print-label">위치:</span> <span id="printTinnitusLoc">-</span> | <span class="print-label">음질:</span> <span id="printTinnitusSound">-</span></p>
+                            <p style="margin: 3px 0;"><span class="print-label">어지럼:</span> <span id="printDizzy">-</span> | <span class="print-label">귀먹먹:</span> <span id="printFullness">-</span></p>
+                        </div>
+
+                        <!-- 청각장애 -->
+                        <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                            <p style="margin: 0 0 3px 0; font-weight: 600;">⑥ 청각장애</p>
+                            <p style="margin: 3px 0;"><span class="print-label">등록:</span> <span id="printRegistration">-</span> | <span class="print-label">급여:</span> <span id="printSubsidy">-</span> | <span class="print-label">날짜:</span> <span id="printSubsidyDate">-</span></p>
+                        </div>
+
+                        <!-- 목표 -->
+                        <div>
+                            <p style="margin: 0 0 3px 0; font-weight: 600;">⑦ 보청기 사용 목표</p>
+                            <p style="margin: 3px 0; white-space: pre-wrap;" id="printGoal">-</p>
                         </div>
                     </div>
                 </div>
@@ -1076,18 +1114,52 @@
             document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
             document.getElementById('completionScreen').classList.add('active');
 
-            // 결과 화면에 데이터 표시
+            // 기본정보
             document.getElementById('printName').textContent = lastFormData.name || '-';
             document.getElementById('printPhone').textContent = lastFormData.phone || '-';
             document.getElementById('printAddress').textContent = lastFormData.address || '-';
             document.getElementById('printAge').textContent = lastFormData.age || '-';
             document.getElementById('printGender').textContent = lastFormData.gender || '-';
-            document.getElementById('printBirthdate').textContent = lastFormData.birthdate || '-';
             document.getElementById('printPath').textContent = lastFormData.path || '-';
             document.getElementById('printDetailPath').textContent = lastFormData.detailedPath || '-';
-            document.getElementById('printDuration').textContent = lastFormData.duration || '-';
-            document.getElementById('printBadEar').textContent = lastFormData.badEar || '-';
-            document.getElementById('printHearingAid').textContent = lastFormData.hearingAidExp || '-';
+
+            // ① 난청정보
+            document.getElementById('printHearingLossTime').textContent = lastFormData.hearingLossTime || '-';
+            document.getElementById('printOnset').textContent = lastFormData.onset || '-';
+            document.getElementById('printWorse').textContent = lastFormData.worse || '-';
+            document.getElementById('printClinic').textContent = lastFormData.clinic || '-';
+            document.getElementById('printEarDiseases').textContent = (lastFormData.earDiseases && lastFormData.earDiseases.length > 0) ? lastFormData.earDiseases.join(', ') : '-';
+            document.getElementById('printTest').textContent = lastFormData.test || '-';
+
+            // ② 현재 불편
+            document.getElementById('printDiscomforts').textContent = (lastFormData.discomforts && lastFormData.discomforts.length > 0) ? lastFormData.discomforts.join(', ') : '-';
+
+            // ③ 생활환경
+            document.getElementById('printMainContact').textContent = lastFormData.mainContact || '-';
+            document.getElementById('printFamily').textContent = lastFormData.family || '-';
+            document.getElementById('printActivity').textContent = lastFormData.activity || '-';
+
+            // ④ 보청기 경험
+            document.getElementById('printExperience').textContent = lastFormData.experience || '-';
+            document.getElementById('printExpProduct').textContent = lastFormData.expProduct || '-';
+            document.getElementById('printDirection').textContent = lastFormData.direction || '-';
+            document.getElementById('printExpSatisfy').textContent = lastFormData.expSatisfy || '-';
+            document.getElementById('printExpDislike').textContent = lastFormData.expDislike || '-';
+
+            // ⑤ 귀 관련 증상
+            document.getElementById('printTinnitus').textContent = lastFormData.tinnitus || '-';
+            document.getElementById('printTinnitusLoc').textContent = lastFormData.tinnitusLoc || '-';
+            document.getElementById('printTinnitusSound').textContent = lastFormData.tinnitusSound || '-';
+            document.getElementById('printDizzy').textContent = lastFormData.dizzy || '-';
+            document.getElementById('printFullness').textContent = lastFormData.fullness || '-';
+
+            // ⑥ 청각장애
+            document.getElementById('printRegistration').textContent = lastFormData.registration || '-';
+            document.getElementById('printSubsidy').textContent = lastFormData.subsidy || '-';
+            document.getElementById('printSubsidyDate').textContent = lastFormData.subsidyDate || '-';
+
+            // ⑦ 목표
+            document.getElementById('printGoal').textContent = lastFormData.goal || '-';
         }
 
         // 인쇄 기능
