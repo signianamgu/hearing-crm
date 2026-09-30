@@ -90,15 +90,17 @@
             * { margin: 0; padding: 0; box-sizing: border-box; }
             html, body { background: white; font-size: 8.5pt; width: 100%; line-height: 1.2; }
             .container { max-width: 100%; padding: 4mm !important; margin: 0 !important; }
-            .form-container { box-shadow: none !important; padding: 0 !important; background: white !important; display: none; }
+            .form-container { box-shadow: none !important; padding: 0 !important; background: white !important; }
+            .step-content { display: none !important; }
             .admin-dashboard { display: none !important; }
             .admin-btn { display: none !important; }
             .no-print { display: none !important; }
             .step-indicator { display: none !important; }
             .completion-icon { display: none !important; }
             .completion-screen h2 { display: none !important; }
-            .completion-screen > p { display: none !important; }
+            .completion-screen > p:not(#printContent *) { display: none !important; }
             .button-group { display: none !important; }
+            .modal-overlay { display: none !important; }
             .print-only { display: block !important; }
             .completion-screen { display: block !important; padding: 0 !important; max-height: 100%; page-break-after: avoid; }
             #printContent { display: block !important; }
@@ -114,6 +116,34 @@
             #printContent { font-size: 8.5pt; }
             #printContent > div { padding: 0 !important; border: none !important; margin: 0 !important; }
             #printContent p { margin: 1px 0 !important; padding: 0 !important; }
+
+            /* detailModal 인쇄용 */
+            #detailModal.active {
+                display: block !important;
+                position: static !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: transparent !important;
+                z-index: auto !important;
+            }
+            .modal-content {
+                background: white !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                max-height: 100% !important;
+                overflow: visible !important;
+            }
+            .modal-content h2 { display: none !important; }
+            .modal-buttons { display: none !important; }
+            #detailContent { font-size: 8pt !important; }
+            #detailContent p { margin: 1px 0 !important; padding: 0 !important; font-size: 8pt !important; line-height: 1.1; }
+            #detailContent strong { font-weight: 600; }
             .print-section h3 { margin: 3px 0 2px 0 !important; padding: 0 !important; font-size: 9pt !important; font-weight: 700; }
             .print-section p { margin: 1px 0 !important; padding: 0 !important; font-size: 8pt !important; line-height: 1.1; }
             .print-label { font-weight: 600; }
@@ -1287,29 +1317,64 @@
         function showDetailModal(data) {
             lastFormData = data;
             const diseases = data.earDiseases ? data.earDiseases.join(', ') : '-';
+            const discomforts = data.discomforts ? data.discomforts.join(', ') : '-';
 
             const html = `
-                <div style="text-align: left;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div>
-                            <p><strong>성명:</strong> ${data.name || '-'}</p>
-                            <p><strong>전화:</strong> ${data.phone || '-'}</p>
-                            <p><strong>주소:</strong> ${data.address || '-'}</p>
-                        </div>
-                        <div>
-                            <p><strong>나이:</strong> ${data.age || '-'}</p>
-                            <p><strong>성별:</strong> ${data.gender || '-'}</p>
-                            <p><strong>생년월일:</strong> ${data.birthdate || '-'}</p>
-                        </div>
+                <div style="text-align: left; font-size: 0.9rem;">
+                    <!-- 기본정보 -->
+                    <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
+                        <p style="margin: 3px 0;"><strong>성명:</strong> ${data.name || '-'} | <strong>전화:</strong> ${data.phone || '-'} | <strong>나이:</strong> ${data.age || '-'} | <strong>성별:</strong> ${data.gender || '-'}</p>
+                        <p style="margin: 3px 0;"><strong>주소:</strong> ${data.address || '-'}</p>
+                        <p style="margin: 3px 0;"><strong>방문경로:</strong> ${data.path || '-'} > ${data.detailedPath || '-'}</p>
                     </div>
-                    <div style="padding-top: 15px; border-top: 1px solid #ddd;">
-                        <p><strong>방문경로:</strong> ${data.path || '-'} > ${data.detailedPath || '-'}</p>
-                        <p><strong>난청기간:</strong> ${data.duration || '-'}</p>
-                        <p><strong>나쁜 귀:</strong> ${data.badEar || '-'}</p>
-                        <p><strong>귀 질환:</strong> ${diseases}</p>
-                        <p><strong>청각장애등급:</strong> ${data.disabilityGrade || '-'}</p>
-                        <p><strong>보청기경험:</strong> ${data.hearingAidExp || '-'}</p>
-                        <p><strong>저장시간:</strong> ${data.time || '-'}</p>
+
+                    <!-- ① 난청정보 -->
+                    <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                        <p style="margin: 0 3px 3px 0; font-weight: 600;">① 난청정보</p>
+                        <p style="margin: 3px 0;"><strong>경과:</strong> ${data.hearingLossTime || '-'} | <strong>발병:</strong> ${data.onset || '-'} | <strong>더 안 좋은 귀:</strong> ${data.worse || '-'}</p>
+                        <p style="margin: 3px 0;"><strong>이비인후과:</strong> ${data.clinic || '-'} | <strong>진단질환:</strong> ${diseases}</p>
+                        <p style="margin: 3px 0;"><strong>청력검사:</strong> ${data.test || '-'}</p>
+                    </div>
+
+                    <!-- ② 현재 불편 -->
+                    <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                        <p style="margin: 0 3px 3px 0; font-weight: 600;">② 현재 불편: ${discomforts}</p>
+                    </div>
+
+                    <!-- ③ 생활환경 -->
+                    <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                        <p style="margin: 0 3px 3px 0; font-weight: 600;">③ 생활환경</p>
+                        <p style="margin: 3px 0;"><strong>주요 대화:</strong> ${data.mainContact || '-'} | <strong>가족:</strong> ${data.family || '-'} | <strong>외출·모임:</strong> ${data.activity || '-'}</p>
+                    </div>
+
+                    <!-- ④ 보청기 경험 -->
+                    <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                        <p style="margin: 0 3px 3px 0; font-weight: 600;">④ 보청기 경험</p>
+                        <p style="margin: 3px 0;"><strong>경험:</strong> ${data.experience || '-'} | <strong>제조사:</strong> ${data.expProduct || '-'} | <strong>착용:</strong> ${data.direction || '-'}</p>
+                        <p style="margin: 3px 0;"><strong>만족:</strong> ${data.expSatisfy || '-'} | <strong>불만:</strong> ${data.expDislike || '-'}</p>
+                    </div>
+
+                    <!-- ⑤ 귀 관련 증상 -->
+                    <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                        <p style="margin: 0 3px 3px 0; font-weight: 600;">⑤ 귀 관련 증상</p>
+                        <p style="margin: 3px 0;"><strong>이명:</strong> ${data.tinnitus || '-'} | <strong>위치:</strong> ${data.tinnitusLoc || '-'} | <strong>음질:</strong> ${data.tinnitusSound || '-'}</p>
+                        <p style="margin: 3px 0;"><strong>어지럼:</strong> ${data.dizzy || '-'} | <strong>귀먹먹:</strong> ${data.fullness || '-'}</p>
+                    </div>
+
+                    <!-- ⑥ 청각장애 -->
+                    <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                        <p style="margin: 0 3px 3px 0; font-weight: 600;">⑥ 청각장애</p>
+                        <p style="margin: 3px 0;"><strong>등록:</strong> ${data.registration || '-'} | <strong>급여:</strong> ${data.subsidy || '-'} | <strong>날짜:</strong> ${data.subsidyDate || '-'}</p>
+                    </div>
+
+                    <!-- ⑦ 목표 -->
+                    <div>
+                        <p style="margin: 0 3px 3px 0; font-weight: 600;">⑦ 보청기 사용 목표</p>
+                        <p style="margin: 3px 0; white-space: pre-wrap;">${data.goal || '-'}</p>
+                    </div>
+
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 0.85rem; color: #666;">
+                        <p style="margin: 0;"><strong>저장시간:</strong> ${data.time || '-'}</p>
                     </div>
                 </div>
             `;
