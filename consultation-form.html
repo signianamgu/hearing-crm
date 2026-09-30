@@ -622,6 +622,40 @@
         </div>
     </div>
 
+    <!-- 관리자 대시보드 -->
+    <div class="admin-dashboard" id="adminDashboard" style="display: none; background: white; border-radius: 25px; padding: 50px 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <div style="margin-bottom: 30px;">
+            <button class="btn btn-secondary" onclick="exitAdminDashboard()" style="margin-bottom: 20px;">← 돌아가기</button>
+            <h1>📊 관리자 대시보드</h1>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 40px;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 10px;" id="totalCount">0</div>
+                <div>총 상담 건수</div>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table id="dataTable" style="border-collapse: collapse; background: white; width: 100%; font-size: 0.85rem;">
+                <thead>
+                    <tr style="background: #f5f5f5;">
+                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">번호</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">성명</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">전화</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">나이</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">경로</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">난청경과</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">보청기</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">시간</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <button class="admin-btn" onclick="openAdminModal()">⚙️</button>
 
     <!-- Admin Modal -->
@@ -972,12 +1006,47 @@
             const password = document.getElementById('adminPassword').value;
             if (password === ADMIN_PASSWORD) {
                 closeAdminModal();
-                alert('📊 관리자 대시보드\n\n총 상담 건수: ' + currentResponses.length + '\n\n상담 데이터는 Firebase에 자동 저장됩니다.');
+                showAdminDashboard();
             } else {
                 document.getElementById('adminError').style.display = 'block';
                 document.getElementById('adminPassword').value = '';
                 document.getElementById('adminPassword').focus();
             }
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            updateDashboardDisplay(currentResponses);
+        }
+
+        function exitAdminDashboard() {
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('formContainer').style.display = 'block';
+        }
+
+        function updateDashboardDisplay(responses) {
+            const total = responses.length;
+            document.getElementById('totalCount').textContent = total;
+
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            responses.forEach((response, index) => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #eee';
+                row.innerHTML = `
+                    <td style="padding: 10px 12px;">${index + 1}</td>
+                    <td style="padding: 10px 12px;">${response.name || '-'}</td>
+                    <td style="padding: 10px 12px;">${response.phone || '-'}</td>
+                    <td style="padding: 10px 12px;">${response.age || '-'}</td>
+                    <td style="padding: 10px 12px;">${response.path || '-'} > ${response.detailedPath || '-'}</td>
+                    <td style="padding: 10px 12px;">${response.hearingLossTime || '-'}</td>
+                    <td style="padding: 10px 12px;">${response.experience || '-'}</td>
+                    <td style="padding: 10px 12px;">${response.time || '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
         }
     </script>
 </body>
