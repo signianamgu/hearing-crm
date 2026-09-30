@@ -17,18 +17,18 @@
         h1 { font-size: 2.5rem; color: #333; margin-bottom: 15px; }
         .subtitle { font-size: 1.3rem; color: #666; margin-bottom: 40px; }
         .step-content { display: none; }
-        .step-content.active { display: block; animation: fadeIn 0.3s ease; max-height: 75vh; overflow-y: auto; padding-right: 10px; }
+        .step-content.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .form-group { margin-bottom: 25px; text-align: left; }
         .form-group label { display: block; font-size: 1.1rem; color: #333; margin-bottom: 8px; font-weight: 600; }
-        input[type="text"], input[type="number"], input[type="date"], input[type="tel"], select, textarea { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; font-family: inherit; }
-        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, input[type="tel"]:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 10px rgba(102, 126, 234, 0.3); }
+        input[type="text"], input[type="number"], input[type="date"], input[type="tel"] { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; font-family: inherit; }
+        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, input[type="tel"]:focus { outline: none; border-color: #667eea; box-shadow: 0 0 10px rgba(102, 126, 234, 0.3); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .radio-group { display: flex; gap: 20px; flex-wrap: wrap; }
         .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .radio-option input[type="radio"] { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; }
         .radio-option label { margin: 0; cursor: pointer; font-size: 1rem; }
-        .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 8px; flex-direction: column; }
+        .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 8px; }
         .checkbox-option { display: flex; align-items: center; gap: 8px; }
         .checkbox-option input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #667eea; }
         .checkbox-option label { margin: 0; cursor: pointer; font-size: 1rem; }
@@ -54,9 +54,6 @@
         .completion-icon { font-size: 4rem; margin-bottom: 15px; }
         .completion-screen h2 { font-size: 2rem; color: #2e7d32; margin-bottom: 15px; }
         .section-title { font-size: 1.2rem; color: #667eea; margin: 25px 0 20px 0; font-weight: 700; padding-bottom: 10px; border-bottom: 2px solid #667eea; }
-        .subquestion { display: none; padding: 15px; background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 5px; margin-top: 10px; }
-        .subquestion.show { display: block; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         .admin-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-size: 1.8rem; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.2); transition: all 0.3s ease; z-index: 500; }
         .admin-btn:hover { transform: scale(1.1); }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -70,37 +67,61 @@
         .btn-modal-cancel { background: #ddd; color: #333; }
         .btn-modal-ok { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
         .modal-error { color: #c62828; font-size: 0.9rem; margin-top: 10px; display: none; }
-        .print-section { background: white; padding: 20px; border: 1px solid #ddd; border-radius: 10px; margin-top: 20px; }
-        .print-section h3 { font-size: 1.2rem; color: #333; margin-bottom: 15px; font-weight: 700; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
-        .print-section p { margin-bottom: 8px; font-size: 1rem; line-height: 1.6; }
-        .print-label { font-weight: 600; color: #667eea; }
+        .admin-dashboard { display: none; background: white; border-radius: 25px; padding: 50px 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .admin-dashboard.active { display: block; }
+        .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; text-align: center; }
+        .stat-number { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+        .path-container { background: #fff3cd; padding: 25px; border-radius: 15px; margin-bottom: 30px; }
+        .path-section { margin-bottom: 20px; }
+        .path-section h3 { font-size: 1.1rem; color: #666; margin-bottom: 15px; }
+        .path-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; min-height: 35px; }
+        .path-tag { display: inline-flex; align-items: center; background: #e8f4f8; border: 2px solid #7fc8d9; padding: 8px 12px; border-radius: 20px; font-size: 0.95rem; color: #2c5f70; gap: 8px; }
+        .path-tag button { background: none; border: none; color: #d32f2f; cursor: pointer; font-size: 1.2rem; padding: 0; }
+        #dataTable { font-size: 0.85rem; width: 100%; cursor: pointer; }
+        #dataTable th { background: #f5f5f5; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd; }
+        #dataTable td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+        #dataTable tr:hover { background: #f0f0f0; }
+        .btn-delete { background: #ffcdd2; color: #c62828; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+        .btn-delete:hover { background: #ef5350; color: white; }
 
+        /* 인쇄용 스타일 */
         @media print {
             * { margin: 0; padding: 0; box-sizing: border-box; }
             html, body { background: white; font-size: 10pt; width: 100%; line-height: 1.5; }
             .container { max-width: 100%; padding: 8mm !important; margin: 0 !important; }
-            .form-container { box-shadow: none !important; padding: 0 !important; background: white !important; display: block !important; }
-            .step-content { display: none !important; }
+            .form-container { box-shadow: none !important; padding: 0 !important; background: white !important; display: none; }
+            .admin-dashboard { display: none !important; }
+            .admin-btn { display: none !important; }
+            .no-print { display: none !important; }
             .step-indicator { display: none !important; }
-            .completion-screen { display: block !important; }
             .completion-icon { display: none !important; }
             .completion-screen h2 { display: none !important; }
             .completion-screen > p { display: none !important; }
             .button-group { display: none !important; }
-            .admin-btn { display: none !important; }
+            .print-only { display: block !important; }
+            .completion-screen { display: block !important; padding: 0 !important; max-height: 100%; page-break-after: avoid; }
             #printContent { display: block !important; }
             .print-section {
                 page-break-inside: avoid;
                 margin: 0 !important;
-                padding: 20px !important;
-                border: 1px solid #ddd !important;
+                padding: 0 !important;
+                border: none !important;
                 background: white !important;
                 box-shadow: none !important;
             }
             .print-section h3 { margin: 0 0 8px 0 !important; padding: 0 !important; font-size: 11pt !important; font-weight: 700; }
             .print-section p { margin: 2px 0 !important; padding: 0 !important; font-size: 9pt !important; }
+            .print-label { font-weight: 600; }
             @page { margin: 6mm; size: A4; orphans: 3; widows: 3; }
         }
+
+        .print-only { display: none; }
+        .print-section { background: white; padding: 20px; border: 1px solid #ddd; border-radius: 10px; margin-top: 20px; }
+        .print-section h3 { font-size: 1.2rem; color: #333; margin-bottom: 15px; font-weight: 700; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .print-section p { margin-bottom: 8px; font-size: 1rem; line-height: 1.6; }
+        .print-section-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+        .print-label { font-weight: 600; color: #667eea; }
 
         @media (max-width: 768px) {
             .form-container { padding: 30px 20px; }
@@ -213,367 +234,93 @@
                 <div class="message" id="message4"></div>
             </div>
 
-            <!-- Step 5: 난청 상담 설문 (확장버전) -->
+            <!-- Step 5: 난청 상담 정보 -->
             <div class="step-content" id="content5">
-                <h1>난청 상담 설문 🎧</h1>
+                <h1>난청 상담 정보 🎧</h1>
                 <p class="subtitle">청력 관련 정보를 입력해주세요</p>
 
-                <!-- ① 난청 정보 -->
-                <div class="section-title">① 난청 정보</div>
+                <div class="section-title">난청 정보</div>
 
-                <div class="form-group">
-                    <label>난청을 느낀 지 얼마나 경과했나요?</label>
-                    <input type="text" id="hearingLossTime" placeholder="예: 10년 정도, 5년 정도">
-                </div>
-
-                <div class="form-group">
-                    <label>난청이 어떻게 시작되었나요?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="onset1" name="onset" value="갑작스럽게">
-                            <label for="onset1">갑작스럽게</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="onset2" name="onset" value="서서히">
-                            <label for="onset2">서서히</label>
-                        </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>난청 기간</label>
+                        <select id="hearingLossDuration">
+                            <option value="">선택</option>
+                            <option value="~1년">~1년</option>
+                            <option value="1~5년">1~5년</option>
+                            <option value="5~10년">5~10년</option>
+                            <option value="10년 이상">10년 이상</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>나쁜 귀</label>
+                        <select id="badEar">
+                            <option value="">선택</option>
+                            <option value="좌측">좌측</option>
+                            <option value="우측">우측</option>
+                            <option value="양쪽">양쪽</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>현재 더 안 좋다고 느끼는 귀는?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="worse1" name="worse" value="좌측">
-                            <label for="worse1">좌측</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="worse2" name="worse" value="우측">
-                            <label for="worse2">우측</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="worse3" name="worse" value="비슷함">
-                            <label for="worse3">비슷함</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>이비인후과 진료 경험이 있으신가요?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="clinic1" name="clinic" value="있음" onchange="updateClinicDetail()">
-                            <label for="clinic1">있음</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="clinic2" name="clinic" value="없음" onchange="updateClinicDetail()">
-                            <label for="clinic2">없음</label>
-                        </div>
-                    </div>
-                    <div class="subquestion" id="clinicDetail">
-                        <div class="form-group">
-                            <label>진단받은 귀 질환 (중복 선택):</label>
-                            <div class="checkbox-group">
-                                <div class="checkbox-option">
-                                    <input type="checkbox" id="disease1" name="earDisease" value="돌발성 난청">
-                                    <label for="disease1">돌발성 난청</label>
-                                </div>
-                                <div class="checkbox-option">
-                                    <input type="checkbox" id="disease2" name="earDisease" value="감각신경성 난청">
-                                    <label for="disease2">감각신경성 난청</label>
-                                </div>
-                                <div class="checkbox-option">
-                                    <input type="checkbox" id="disease3" name="earDisease" value="전음성 난청">
-                                    <label for="disease3">전음성 난청</label>
-                                </div>
-                                <div class="checkbox-option">
-                                    <input type="checkbox" id="disease4" name="earDisease" value="이명">
-                                    <label for="disease4">이명</label>
-                                </div>
-                                <div class="checkbox-option">
-                                    <input type="checkbox" id="disease5" name="earDisease" value="메니에르병">
-                                    <label for="disease5">메니에르병</label>
-                                </div>
-                                <div class="checkbox-option">
-                                    <input type="checkbox" id="disease6" name="earDisease" value="기타" onchange="toggleSubquestion('diseaseOther')">
-                                    <label for="disease6">기타</label>
-                                </div>
-                            </div>
-                            <div class="subquestion" id="diseaseOther" style="margin-top: 10px; padding: 0; background: transparent; border: none;">
-                                <input type="text" class="text-input" name="earDiseaseOther" placeholder="질환명을 입력해주세요">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>최근에 청력검사를 받은 적이 있으신가요?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="test1" name="test" value="있음">
-                            <label for="test1">있음</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="test2" name="test" value="없음">
-                            <label for="test2">없음</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ② 현재 불편 -->
-                <div class="section-title">② 현재 가장 불편한 상황 (중복 선택)</div>
-
-                <div class="form-group">
+                    <label>귀 관련 질환</label>
                     <div class="checkbox-group">
                         <div class="checkbox-option">
-                            <input type="checkbox" id="discomfort1" name="discomfort" value="TV 소리">
-                            <label for="discomfort1">TV 소리가 잘 안 들려요</label>
+                            <input type="checkbox" id="tinnitus" name="earDisease" value="이명">
+                            <label for="tinnitus">이명</label>
                         </div>
                         <div class="checkbox-option">
-                            <input type="checkbox" id="discomfort2" name="discomfort" value="가족과 대화">
-                            <label for="discomfort2">가족과 대화할 때 자주 되묻게 돼요</label>
+                            <input type="checkbox" id="otitis" name="earDisease" value="중이염">
+                            <label for="otitis">중이염</label>
                         </div>
                         <div class="checkbox-option">
-                            <input type="checkbox" id="discomfort3" name="discomfort" value="전화">
-                            <label for="discomfort3">전화 통화가 어려워요</label>
+                            <input type="checkbox" id="surgery" name="earDisease" value="수술">
+                            <label for="surgery">수술</label>
                         </div>
                         <div class="checkbox-option">
-                            <input type="checkbox" id="discomfort4" name="discomfort" value="여러 사람 대화">
-                            <label for="discomfort4">여러 사람이 함께 이야기할 때 어려워요</label>
+                            <input type="checkbox" id="other" name="earDisease" value="기타">
+                            <label for="other">기타</label>
                         </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="discomfort5" name="discomfort" value="시끄러운 곳">
-                            <label for="discomfort5">시끄러운 곳(식당, 시장)에서 어려워요</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="discomfort6" name="discomfort" value="조용한 곳에서도">
-                            <label for="discomfort6">조용한 곳에서도 말소리가 안 들려요</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="discomfort7" name="discomfort" value="기타" onchange="toggleSubquestion('discomfortDetail')">
-                            <label for="discomfort7">기타</label>
-                        </div>
-                    </div>
-                    <div class="subquestion" id="discomfortDetail">
-                        <input type="text" class="text-input" name="discomfortDetail" placeholder="구체적으로 설명해주세요">
                     </div>
                 </div>
 
-                <!-- ③ 생활환경 -->
-                <div class="section-title">③ 생활환경</div>
-
                 <div class="form-group">
-                    <label>주로 누구와 대화하시나요?</label>
-                    <input type="text" id="mainContact" placeholder="예: 배우자, 자녀, 회사 동료 등">
+                    <label>청각장애등급</label>
+                    <select id="disabilityGrade">
+                        <option value="">선택</option>
+                        <option value="무">무</option>
+                        <option value="1등급">1등급</option>
+                        <option value="2등급">2등급</option>
+                        <option value="3등급">3등급</option>
+                        <option value="4등급">4등급</option>
+                        <option value="5등급">5등급</option>
+                        <option value="6등급">6등급</option>
+                    </select>
                 </div>
 
+                <div class="section-title">보청기 경험</div>
+
                 <div class="form-group">
-                    <label>함께 사는 가족 구성</label>
+                    <label>보청기 경험</label>
                     <div class="radio-group">
                         <div class="radio-option">
-                            <input type="radio" id="family1" name="family" value="혼자 사는 중">
-                            <label for="family1">혼자 사는 중</label>
+                            <input type="radio" id="noExp" name="hearingAidExp" value="무경험">
+                            <label for="noExp">무경험</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="family2" name="family" value="배우자와 함께">
-                            <label for="family2">배우자와 함께</label>
+                            <input type="radio" id="wearing" name="hearingAidExp" value="현재착용">
+                            <label for="wearing">현재착용</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="family3" name="family" value="자녀와 함께">
-                            <label for="family3">자녀와 함께</label>
+                            <input type="radio" id="trial" name="hearingAidExp" value="체험">
+                            <label for="trial">체험</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="family4" name="family" value="기타">
-                            <label for="family4">기타</label>
+                            <input type="radio" id="failure" name="hearingAidExp" value="적응실패">
+                            <label for="failure">적응실패</label>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>외출·모임 정도</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="activity1" name="activity" value="적음">
-                            <label for="activity1">적음</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="activity2" name="activity" value="보통">
-                            <label for="activity2">보통</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="activity3" name="activity" value="많음">
-                            <label for="activity3">많음</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ④ 보청기 경험 -->
-                <div class="section-title">④ 보청기 경험</div>
-
-                <div class="form-group">
-                    <label>보청기 사용 경험</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="exp1" name="experience" value="처음" onchange="updateExpType()">
-                            <label for="exp1">처음</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="exp2" name="experience" value="현재 사용 중" onchange="updateExpType()">
-                            <label for="exp2">현재 사용 중</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="exp3" name="experience" value="적응실패" onchange="updateExpType()">
-                            <label for="exp3">적응실패</label>
-                        </div>
-                    </div>
-                    <div class="subquestion" id="expDetail">
-                        <div class="form-group">
-                            <label>제조사·모델명:</label>
-                            <input type="text" class="text-input" id="expProduct" placeholder="예: 시그니아 Nx, 포낙 오디오 등">
-                        </div>
-                        <div class="form-group">
-                            <label>착용 방향:</label>
-                            <div class="radio-group">
-                                <div class="radio-option">
-                                    <input type="radio" id="direction1" name="direction" value="양쪽">
-                                    <label for="direction1">양쪽</label>
-                                </div>
-                                <div class="radio-option">
-                                    <input type="radio" id="direction2" name="direction" value="좌측">
-                                    <label for="direction2">좌측</label>
-                                </div>
-                                <div class="radio-option">
-                                    <input type="radio" id="direction3" name="direction" value="우측">
-                                    <label for="direction3">우측</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="currentExpOnly">
-                            <div class="form-group">
-                                <label>가장 불만이었던 점:</label>
-                                <input type="text" class="text-input" id="expDislike" placeholder="">
-                            </div>
-                            <div class="form-group">
-                                <label>반대로 만족했던 점:</label>
-                                <input type="text" class="text-input" id="expSatisfy" placeholder="">
-                            </div>
-                        </div>
-                        <div id="failureExpOnly" style="display: none;">
-                            <div class="form-group">
-                                <label>적응에 실패한 이유:</label>
-                                <input type="text" class="text-input" id="failureReason" placeholder="예: 울림이 심함, 소리가 너무 크거나 작음, 착용감 불편 등">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ⑤ 귀 관련 증상 -->
-                <div class="section-title">⑤ 귀 관련 증상</div>
-
-                <div class="form-group">
-                    <label>이명 (귀에서 삐-, 윙- 하는 소리)</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="tin1" name="tinnitus" value="있음" onchange="toggleSubquestion('tinnitusDetail')">
-                            <label for="tin1">있음</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="tin2" name="tinnitus" value="없음" onchange="toggleSubquestion('tinnitusDetail')">
-                            <label for="tin2">없음</label>
-                        </div>
-                    </div>
-                    <div class="subquestion" id="tinnitusDetail">
-                        <div class="form-group">
-                            <label>이명의 위치:</label>
-                            <div class="radio-group">
-                                <div class="radio-option">
-                                    <input type="radio" id="tinnitus_loc1" name="tinnitusLoc" value="한쪽 귀">
-                                    <label for="tinnitus_loc1">한쪽 귀</label>
-                                </div>
-                                <div class="radio-option">
-                                    <input type="radio" id="tinnitus_loc2" name="tinnitusLoc" value="양쪽">
-                                    <label for="tinnitus_loc2">양쪽</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>이명의 음질:</label>
-                            <input type="text" class="text-input" id="tinnitusSound" placeholder="예: 삐, 윙, 매미 소리 등">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>어지럼증이 있나요?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="dizz1" name="dizzy" value="있음">
-                            <label for="dizz1">있음</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="dizz2" name="dizzy" value="없음">
-                            <label for="dizz2">없음</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>귀가 먹먹하거나 막힌 느낌이 있나요?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="full1" name="fullness" value="있음">
-                            <label for="full1">있음</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="full2" name="fullness" value="없음">
-                            <label for="full2">없음</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ⑥ 청각장애 -->
-                <div class="section-title">⑥ 청각장애 등록</div>
-
-                <div class="form-group">
-                    <label>청각장애 등록이 되어 있으신가요?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="reg1" name="registration" value="있음">
-                            <label for="reg1">있음</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="reg2" name="registration" value="없음">
-                            <label for="reg2">없음</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>장애인 보조기기 급여를 받아보신 적이 있으신가요?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="subsidy1" name="subsidy" value="있음" onchange="toggleSubquestion('subsidyDate')">
-                            <label for="subsidy1">있음</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="subsidy2" name="subsidy" value="없음" onchange="toggleSubquestion('subsidyDate')">
-                            <label for="subsidy2">없음</label>
-                        </div>
-                    </div>
-                    <div class="subquestion" id="subsidyDate">
-                        <div class="form-group">
-                            <label>급여 받은 날짜:</label>
-                            <input type="text" class="text-input" id="subsidyDateInput" placeholder="예: 2020년 5월">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ⑦ 목표 -->
-                <div class="section-title">⑦ 보청기 사용 목표</div>
-
-                <div class="form-group">
-                    <label>보청기를 착용해서 가장 좋아지고 싶은 것은 무엇인가요?</label>
-                    <textarea id="goal" rows="4" placeholder="예: 가족과의 대화를 편하게 하고 싶고, 모임에서 소외되지 않고 싶습니다" style="width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; font-family: inherit;"></textarea>
                 </div>
 
                 <div class="button-group">
@@ -607,9 +354,9 @@
                         </div>
                         <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
                             <p style="margin-bottom: 8px;"><span class="print-label">방문경로:</span> <span id="printPath" style="font-weight: normal;">-</span> > <span id="printDetailPath" style="font-weight: normal;">-</span></p>
-                            <p style="margin-bottom: 8px;"><span class="print-label">난청경과:</span> <span id="printHearingLossTime" style="font-weight: normal;">-</span></p>
-                            <p style="margin-bottom: 8px;"><span class="print-label">이명:</span> <span id="printTinnitus" style="font-weight: normal;">-</span></p>
-                            <p style="margin-bottom: 0;"><span class="print-label">보청기경험:</span> <span id="printExperience" style="font-weight: normal;">-</span></p>
+                            <p style="margin-bottom: 8px;"><span class="print-label">난청기간:</span> <span id="printDuration" style="font-weight: normal;">-</span></p>
+                            <p style="margin-bottom: 8px;"><span class="print-label">나쁜 귀:</span> <span id="printBadEar" style="font-weight: normal;">-</span></p>
+                            <p style="margin-bottom: 0;"><span class="print-label">보청기경험:</span> <span id="printHearingAid" style="font-weight: normal;">-</span></p>
                         </div>
                     </div>
                 </div>
@@ -619,43 +366,77 @@
                     <button class="btn btn-secondary" onclick="resetForm()">다시 시작</button>
                 </div>
             </div>
-            <!-- 관리자 대시보드 -->
-            <div class="admin-dashboard" id="adminDashboard" style="display: none; background: white; border-radius: 25px; padding: 50px 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                <div style="margin-bottom: 30px;">
-                    <button class="btn btn-secondary" onclick="exitAdminDashboard()" style="margin-bottom: 20px;">← 돌아가기</button>
-                    <h1>📊 관리자 대시보드</h1>
-                </div>
+        </div>
+    </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 40px;">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; text-align: center;">
-                        <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 10px;" id="totalCount">0</div>
-                        <div>총 상담 건수</div>
-                    </div>
-                </div>
+    <!-- Admin Dashboard -->
+    <div class="container">
+        <div class="admin-dashboard" id="adminDashboard">
+            <div style="margin-bottom: 30px;">
+                <button class="btn btn-secondary" onclick="exitAdminDashboard()" style="margin-bottom: 20px;">← 돌아가기</button>
+                <h1>📊 관리자 대시보드</h1>
+            </div>
 
-                <div style="overflow-x: auto;">
-                    <table id="dataTable" style="border-collapse: collapse; background: white; width: 100%; font-size: 0.85rem;">
-                        <thead>
-                            <tr style="background: #f5f5f5;">
-                                <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">번호</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">성명</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">전화</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">나이</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">경로</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">난청경과</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">보청기</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd;">시간</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                        </tbody>
-                    </table>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">총 상담 건수</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="onlineCount">0</div>
+                    <div class="stat-label">🌐 온라인</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="offlineCount">0</div>
+                    <div class="stat-label">🏪 오프라인</div>
+                </div>
+            </div>
+
+            <div class="path-container">
+                <h2 style="font-size: 1.5rem; color: #333; margin-bottom: 20px;">📌 유입경로 관리</h2>
+                <div class="path-section">
+                    <h3>🌐 온라인 경로</h3>
+                    <div class="path-tags" id="onlinePathContainer"></div>
+                    <button class="btn btn-primary" onclick="openAddPathModal('online')" style="padding: 10px 20px; font-size: 0.9rem;">➕ 온라인 경로 추가</button>
+                </div>
+                <div class="path-section" style="border-top: 1px solid #ddd; padding-top: 20px;">
+                    <h3>🏪 오프라인 경로</h3>
+                    <div class="path-tags" id="offlinePathContainer"></div>
+                    <button class="btn btn-primary" onclick="openAddPathModal('offline')" style="padding: 10px 20px; font-size: 0.9rem;">➕ 오프라인 경로 추가</button>
+                </div>
+            </div>
+
+            <div class="button-group" style="margin: 30px 0;">
+                <button class="btn btn-primary" onclick="refreshDashboard()">🔄 새로고침</button>
+                <button class="btn btn-primary" onclick="downloadCSV()">📥 CSV 다운로드</button>
+                <button class="btn btn-secondary" onclick="clearAllData()" style="background: #ffcdd2; color: #c62828;">🗑️ 전체 삭제</button>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table id="dataTable" style="border-collapse: collapse; background: white;">
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>성명</th>
+                            <th>전화</th>
+                            <th>나이</th>
+                            <th>지역</th>
+                            <th>경로</th>
+                            <th>난청기간</th>
+                            <th>보청기</th>
+                            <th>시간</th>
+                            <th>인쇄</th>
+                            <th>삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <button class="admin-btn" onclick="openAdminModal()">⚙️</button>
+    <button class="admin-btn no-print" onclick="openAdminModal()">⚙️</button>
 
     <!-- Admin Modal -->
     <div class="modal-overlay" id="adminModal">
@@ -666,6 +447,34 @@
             <div class="modal-buttons">
                 <button class="btn-modal-cancel" onclick="closeAdminModal()">취소</button>
                 <button class="btn-modal-ok" onclick="checkAdminPassword()">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Path Modal -->
+    <div class="modal-overlay" id="addPathModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="text-align: center;">📌 유입경로 추가</h2>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 1rem; color: #333; margin-bottom: 10px; font-weight: 600;">경로명</label>
+                <input type="text" id="addPathName" placeholder="예: 인스타그램, 틱톡 등" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem;">
+            </div>
+            <div class="modal-error" id="addPathError" style="margin-bottom: 15px;"></div>
+            <div class="modal-buttons">
+                <button class="btn-modal-cancel" onclick="closeAddPathModal()">취소</button>
+                <button class="btn-modal-ok" onclick="submitAddPath()">추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 결과 보기 모달 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <h2>📋 상담 결과 상세</h2>
+            <div id="detailContent" style="text-align: left; margin-bottom: 20px;"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary btn-small" onclick="printDetailResult()">🖨️ 인쇄</button>
+                <button class="btn-modal-cancel" onclick="closeDetailModal()">닫기</button>
             </div>
         </div>
     </div>
@@ -687,7 +496,6 @@
         let customPaths = { online: {}, offline: {} };
         let currentResponses = [];
         let lastFormData = {};
-        const ADMIN_PASSWORD = 'tlrmsldkskarn';
 
         const defaultPaths = {
             online: ['네이버', '유튜브', '블로그', '카카오톡', '스마트스토어', '구글', '기타 온라인'],
@@ -714,6 +522,10 @@
             });
             responses.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
             currentResponses = responses;
+
+            if (document.getElementById('adminDashboard').classList.contains('active')) {
+                updateDashboardDisplay(responses);
+            }
         });
 
         function initializePaths() {
@@ -742,9 +554,50 @@
         function renderPathTags() {
             const onlineContainer = document.getElementById('onlinePathContainer');
             const offlineContainer = document.getElementById('offlinePathContainer');
-            if (!onlineContainer || !offlineContainer) return;
+            onlineContainer.innerHTML = '';
+            offlineContainer.innerHTML = '';
+
+            const onlinePaths = Object.entries(customPaths.online || {});
+            const offlinePaths = Object.entries(customPaths.offline || {});
+
+            if (onlinePaths.length === 0) {
+                onlineContainer.innerHTML = '<span style="color: #999; font-style: italic;">추가된 경로가 없습니다</span>';
+            } else {
+                onlinePaths.forEach(([key, pathName]) => {
+                    const tag = createPathTag(pathName, 'online', key);
+                    onlineContainer.appendChild(tag);
+                });
+            }
+
+            if (offlinePaths.length === 0) {
+                offlineContainer.innerHTML = '<span style="color: #999; font-style: italic;">추가된 경로가 없습니다</span>';
+            } else {
+                offlinePaths.forEach(([key, pathName]) => {
+                    const tag = createPathTag(pathName, 'offline', key);
+                    offlineContainer.appendChild(tag);
+                });
+            }
         }
 
+        function createPathTag(pathName, type, firebaseKey) {
+            const tag = document.createElement('div');
+            tag.className = 'path-tag';
+            const span = document.createElement('span');
+            span.textContent = pathName;
+            tag.appendChild(span);
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '✕';
+            deleteBtn.onclick = function(e) {
+                e.stopPropagation();
+                if (confirm(`"${pathName}"을(를) 삭제하시겠습니까?`)) {
+                    db.ref(`custom-paths/${type}/${firebaseKey}`).remove();
+                }
+            };
+            tag.appendChild(deleteBtn);
+            return tag;
+        }
+
+        const ADMIN_PASSWORD = 'tlrmsldkskarn';
         let currentStep = 1;
         let selectedPath = null;
         let selectedDetailPath = null;
@@ -861,47 +714,12 @@
             document.getElementById('nextBtn3').disabled = false;
         }
 
-        function toggleSubquestion(id) {
-            const element = document.getElementById(id);
-            if (element) {
-                element.classList.toggle('show');
-            }
-        }
-
-        function updateClinicDetail() {
-            const clinic = document.querySelector('input[name="clinic"]:checked').value;
-            const detail = document.getElementById('clinicDetail');
-            if (clinic === '있음') {
-                detail.classList.add('show');
-            } else {
-                detail.classList.remove('show');
-            }
-        }
-
-        function updateExpType() {
-            const expType = document.querySelector('input[name="experience"]:checked').value;
-            const currentOnly = document.getElementById('currentExpOnly');
-            const failureOnly = document.getElementById('failureExpOnly');
-            const expDetail = document.getElementById('expDetail');
-
-            if (expType === '처음') {
-                expDetail.classList.remove('show');
-                currentOnly.style.display = 'none';
-                failureOnly.style.display = 'none';
-            } else if (expType === '현재 사용 중') {
-                expDetail.classList.add('show');
-                currentOnly.style.display = 'block';
-                failureOnly.style.display = 'none';
-            } else if (expType === '적응실패') {
-                expDetail.classList.add('show');
-                currentOnly.style.display = 'none';
-                failureOnly.style.display = 'block';
-            }
-        }
-
         function submitForm() {
             const earDiseases = Array.from(document.querySelectorAll('input[name="earDisease"]:checked')).map(el => el.value);
-            const discomforts = Array.from(document.querySelectorAll('input[name="discomfort"]:checked')).map(el => el.value);
+            const hearingAidExp = document.querySelector('input[name="hearingAidExp"]:checked')?.value || '';
+            const duration = document.getElementById('hearingLossDuration').value;
+            const badEar = document.getElementById('badEar').value;
+            const disabilityGrade = document.getElementById('disabilityGrade').value;
 
             const responseData = {
                 age: formData.age,
@@ -913,31 +731,11 @@
                 phone: formData.phone,
                 birthdate: formData.birthdate,
                 address: formData.address,
-                hearingLossTime: document.getElementById('hearingLossTime').value,
-                onset: document.querySelector('input[name="onset"]:checked')?.value || '',
-                worse: document.querySelector('input[name="worse"]:checked')?.value || '',
-                clinic: document.querySelector('input[name="clinic"]:checked')?.value || '',
+                duration: duration,
+                badEar: badEar,
                 earDiseases: earDiseases,
-                test: document.querySelector('input[name="test"]:checked')?.value || '',
-                discomforts: discomforts,
-                mainContact: document.getElementById('mainContact').value,
-                family: document.querySelector('input[name="family"]:checked')?.value || '',
-                activity: document.querySelector('input[name="activity"]:checked')?.value || '',
-                experience: document.querySelector('input[name="experience"]:checked')?.value || '',
-                expProduct: document.getElementById('expProduct').value,
-                direction: document.querySelector('input[name="direction"]:checked')?.value || '',
-                expDislike: document.getElementById('expDislike').value,
-                expSatisfy: document.getElementById('expSatisfy').value,
-                failureReason: document.getElementById('failureReason').value,
-                tinnitus: document.querySelector('input[name="tinnitus"]:checked')?.value || '',
-                tinnitusLoc: document.querySelector('input[name="tinnitusLoc"]:checked')?.value || '',
-                tinnitusSound: document.getElementById('tinnitusSound').value,
-                dizzy: document.querySelector('input[name="dizzy"]:checked')?.value || '',
-                fullness: document.querySelector('input[name="fullness"]:checked')?.value || '',
-                registration: document.querySelector('input[name="registration"]:checked')?.value || '',
-                subsidy: document.querySelector('input[name="subsidy"]:checked')?.value || '',
-                subsidyDate: document.getElementById('subsidyDateInput').value,
-                goal: document.getElementById('goal').value,
+                disabilityGrade: disabilityGrade,
+                hearingAidExp: hearingAidExp,
                 timestamp: new Date().toISOString(),
                 date: new Date().toLocaleDateString('ko-KR'),
                 time: new Date().toLocaleTimeString('ko-KR')
@@ -959,6 +757,7 @@
             document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
             document.getElementById('completionScreen').classList.add('active');
 
+            // 결과 화면에 데이터 표시
             document.getElementById('printName').textContent = lastFormData.name || '-';
             document.getElementById('printPhone').textContent = lastFormData.phone || '-';
             document.getElementById('printAddress').textContent = lastFormData.address || '-';
@@ -967,25 +766,36 @@
             document.getElementById('printBirthdate').textContent = lastFormData.birthdate || '-';
             document.getElementById('printPath').textContent = lastFormData.path || '-';
             document.getElementById('printDetailPath').textContent = lastFormData.detailedPath || '-';
-            document.getElementById('printHearingLossTime').textContent = lastFormData.hearingLossTime || '-';
-            document.getElementById('printTinnitus').textContent = lastFormData.tinnitus || '-';
-            document.getElementById('printExperience').textContent = lastFormData.experience || '-';
-
-            window.scrollTo(0, 0);
+            document.getElementById('printDuration').textContent = lastFormData.duration || '-';
+            document.getElementById('printBadEar').textContent = lastFormData.badEar || '-';
+            document.getElementById('printHearingAid').textContent = lastFormData.hearingAidExp || '-';
         }
 
+        // 인쇄 기능
         function printResult() {
             window.print();
         }
+
 
         function resetForm() {
             selectedPath = null;
             selectedDetailPath = null;
             formData = {};
             lastFormData = {};
-            document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input[type="tel"], textarea').forEach(el => el.value = '');
-            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.checked = false);
-            document.querySelectorAll('.subquestion').forEach(el => el.classList.remove('show'));
+            document.getElementById('age').value = '';
+            document.getElementById('region').value = '';
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerBirthdate').value = '';
+            document.getElementById('customerAddress').value = '';
+            document.getElementById('hearingLossDuration').value = '';
+            document.getElementById('badEar').value = '';
+            document.getElementById('disabilityGrade').value = '';
+            document.querySelectorAll('input[name="gender"]').forEach(el => el.checked = false);
+            document.querySelectorAll('input[name="earDisease"]').forEach(el => el.checked = false);
+            document.querySelectorAll('input[name="hearingAidExp"]').forEach(el => el.checked = false);
+            document.getElementById('nextBtn2').disabled = true;
+            document.getElementById('nextBtn3').disabled = true;
             document.getElementById('completionScreen').classList.remove('active');
             goToStep(1);
         }
@@ -1014,48 +824,286 @@
         }
 
         function showAdminDashboard() {
-            const formContainer = document.getElementById('formContainer');
-            const adminDashboard = document.getElementById('adminDashboard');
-
-            // 폼 컨테이너 안의 모든 step-content와 completion-screen 숨기기
-            formContainer.querySelectorAll('.step-content, .completion-screen').forEach(el => {
-                el.style.display = 'none';
-            });
-            // 관리자 대시보드만 보이기
-            adminDashboard.style.display = 'block';
+            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('adminDashboard').classList.add('active');
             updateDashboardDisplay(currentResponses);
         }
 
         function exitAdminDashboard() {
-            const formContainer = document.getElementById('formContainer');
-            const adminDashboard = document.getElementById('adminDashboard');
-
-            adminDashboard.style.display = 'none';
-            // Step 1 보이기
-            goToStep(1);
+            document.getElementById('adminDashboard').classList.remove('active');
+            document.getElementById('formContainer').style.display = 'block';
         }
 
         function updateDashboardDisplay(responses) {
             const total = responses.length;
+            const online = responses.filter(r => r.path === '온라인').length;
+            const offline = responses.filter(r => r.path === '오프라인').length;
+
+            const onlinePercent = total > 0 ? Math.round((online / total) * 100) : 0;
+            const offlinePercent = total > 0 ? Math.round((offline / total) * 100) : 0;
+
             document.getElementById('totalCount').textContent = total;
+            document.getElementById('onlineCount').innerHTML = `${online}<br><small style="font-size: 0.7rem; opacity: 0.8;">(${onlinePercent}%)</small>`;
+            document.getElementById('offlineCount').innerHTML = `${offline}<br><small style="font-size: 0.7rem; opacity: 0.8;">(${offlinePercent}%)</small>`;
 
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '';
 
             responses.forEach((response, index) => {
                 const row = document.createElement('tr');
-                row.style.borderBottom = '1px solid #eee';
                 row.innerHTML = `
-                    <td style="padding: 10px 12px;">${index + 1}</td>
-                    <td style="padding: 10px 12px;">${response.name || '-'}</td>
-                    <td style="padding: 10px 12px;">${response.phone || '-'}</td>
-                    <td style="padding: 10px 12px;">${response.age || '-'}</td>
-                    <td style="padding: 10px 12px;">${response.path || '-'} > ${response.detailedPath || '-'}</td>
-                    <td style="padding: 10px 12px;">${response.hearingLossTime || '-'}</td>
-                    <td style="padding: 10px 12px;">${response.experience || '-'}</td>
-                    <td style="padding: 10px 12px;">${response.time || '-'}</td>
+                    <td>${index + 1}</td>
+                    <td>${response.name || '-'}</td>
+                    <td>${response.phone || '-'}</td>
+                    <td>${response.age || '-'}</td>
+                    <td>${response.region || '-'}</td>
+                    <td>${response.path || '-'}</td>
+                    <td>${response.duration || '-'}</td>
+                    <td>${response.hearingAidExp || '-'}</td>
+                    <td>${response.time || '-'}</td>
+                    <td style="text-align: center;">
+                        <button class="btn-print" style="background: #c8e6c9; color: #2e7d32; padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">인쇄</button>
+                    </td>
+                    <td style="text-align: center;">
+                        <button class="btn-delete">삭제</button>
+                    </td>
                 `;
+
+                const printBtn = row.querySelector('.btn-print');
+                const deleteBtn = row.querySelector('.btn-delete');
+                const firebaseKey = response.firebaseKey;
+
+                printBtn.onclick = function(e) {
+                    e.preventDefault();
+                    showDetailModal(response);
+                };
+
+                deleteBtn.onclick = function(e) {
+                    e.preventDefault();
+                    if (confirm('이 항목을 삭제하시겠습니까?')) {
+                        db.ref('consultation-responses/' + firebaseKey).remove(function(error) {
+                            if (error) {
+                                alert('❌ 삭제 실패: ' + error.message);
+                            }
+                        });
+                    }
+                };
+
                 tableBody.appendChild(row);
+            });
+        }
+
+        function showDetailModal(data) {
+            lastFormData = data;
+            const diseases = data.earDiseases ? data.earDiseases.join(', ') : '-';
+
+            const html = `
+                <div style="text-align: left;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <p><strong>성명:</strong> ${data.name || '-'}</p>
+                            <p><strong>전화:</strong> ${data.phone || '-'}</p>
+                            <p><strong>주소:</strong> ${data.address || '-'}</p>
+                        </div>
+                        <div>
+                            <p><strong>나이:</strong> ${data.age || '-'}</p>
+                            <p><strong>성별:</strong> ${data.gender || '-'}</p>
+                            <p><strong>생년월일:</strong> ${data.birthdate || '-'}</p>
+                        </div>
+                    </div>
+                    <div style="padding-top: 15px; border-top: 1px solid #ddd;">
+                        <p><strong>방문경로:</strong> ${data.path || '-'} > ${data.detailedPath || '-'}</p>
+                        <p><strong>난청기간:</strong> ${data.duration || '-'}</p>
+                        <p><strong>나쁜 귀:</strong> ${data.badEar || '-'}</p>
+                        <p><strong>귀 질환:</strong> ${diseases}</p>
+                        <p><strong>청각장애등급:</strong> ${data.disabilityGrade || '-'}</p>
+                        <p><strong>보청기경험:</strong> ${data.hearingAidExp || '-'}</p>
+                        <p><strong>저장시간:</strong> ${data.time || '-'}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('detailContent').innerHTML = html;
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        function printDetailResult() {
+            window.print();
+        }
+
+        function downloadDetailPDF() {
+            const data = lastFormData;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 12;
+            let yPos = margin + 8;
+
+            // 제목
+            doc.setFontSize(13);
+            doc.setFont(undefined, 'bold');
+            doc.text('📋 상담 결과 요약', margin, yPos);
+            yPos += 8;
+
+            // 기본정보
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            const colWidth = (pageWidth - margin * 2) / 2 - 2;
+            const col1X = margin;
+            const col2X = margin + colWidth + 4;
+
+            // 행 1: 성명 / 나이
+            doc.setFont(undefined, 'bold');
+            doc.text('성명:', col1X, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(String(data.name || '-').substring(0, 20), col1X + 12, yPos);
+            doc.setFont(undefined, 'bold');
+            doc.text('나이:', col2X, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(String(data.age || '-'), col2X + 10, yPos);
+            yPos += 5;
+
+            // 행 2: 전화 / 성별
+            doc.setFont(undefined, 'bold');
+            doc.text('전화:', col1X, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(String(data.phone || '-').substring(0, 20), col1X + 12, yPos);
+            doc.setFont(undefined, 'bold');
+            doc.text('성별:', col2X, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(String(data.gender || '-'), col2X + 10, yPos);
+            yPos += 5;
+
+            // 행 3: 생년월일
+            doc.setFont(undefined, 'bold');
+            doc.text('생년월일:', col1X, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(String(data.birthdate || '-'), col1X + 22, yPos);
+            yPos += 5;
+
+            // 행 4: 주소
+            doc.setFont(undefined, 'bold');
+            doc.text('주소:', col1X, yPos);
+            doc.setFont(undefined, 'normal');
+            const addressLines = doc.splitTextToSize(String(data.address || '-'), colWidth * 2 - 5);
+            doc.text(addressLines, col1X + 12, yPos);
+            yPos += addressLines.length * 4 + 2;
+
+            // 구분선
+            doc.setDrawColor(200, 200, 200);
+            doc.line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 5;
+
+            // 상담정보
+            doc.setFont(undefined, 'bold');
+            doc.text('방문경로:', col1X, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${String(data.path || '-')} > ${String(data.detailedPath || '-')}`, col1X + 22, yPos);
+            yPos += 5;
+
+            doc.setFont(undefined, 'bold');
+            doc.text('난청기간:', col1X, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(String(data.duration || '-'), col1X + 22, yPos);
+            yPos += 5;
+
+            doc.setFont(undefined, 'bold');
+            doc.text('나쁜 귀:', col1X, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(String(data.badEar || '-'), col1X + 16, yPos);
+            yPos += 5;
+
+            doc.setFont(undefined, 'bold');
+            doc.text('보청기경험:', col1X, yPos);
+            doc.setFont(undefined, 'normal');
+            doc.text(String(data.hearingAidExp || '-'), col1X + 25, yPos);
+
+            // PDF 저장
+            doc.save(`상담결과_${data.name || '고객'}_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}.pdf`);
+        }
+
+        function refreshDashboard() {
+            updateDashboardDisplay(currentResponses);
+            alert('✅ 새로고침 완료!');
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ 모든 데이터를 삭제하시겠습니까?')) {
+                if (confirm('정말로 삭제하시겠습니까?')) {
+                    db.ref('consultation-responses').remove(function(error) {
+                        if (error) {
+                            alert('❌ 삭제 실패: ' + error.message);
+                        } else {
+                            alert('✅ 모든 데이터 삭제 완료!');
+                        }
+                    });
+                }
+            }
+        }
+
+        function downloadCSV() {
+            if (currentResponses.length === 0) {
+                alert('다운로드할 데이터가 없습니다.');
+                return;
+            }
+
+            const headers = ['번호', '성명', '전화', '나이', '지역', '경로', '상세경로', '난청기간', '보청기', '시간', '날짜'];
+            let csv = headers.join(',') + '\n';
+
+            currentResponses.forEach((response, index) => {
+                csv += `${index + 1},"${response.name || '-'}","${response.phone || '-'}",${response.age || '-'},"${response.region || '-'}",${response.path || '-'},"${response.detailedPath || '-'}",${response.duration || '-'},${response.hearingAidExp || '-'},${response.time || '-'},${response.date || '-'}\n`;
+            });
+
+            const BOM = '﻿';
+            const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `상담데이터_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/ /g, '')}.csv`);
+            link.click();
+        }
+
+        function openAddPathModal(type) {
+            document.getElementById('addPathModal').classList.add('active');
+            document.getElementById('addPathModal').dataset.type = type;
+            document.getElementById('addPathName').value = '';
+            document.getElementById('addPathError').style.display = 'none';
+            document.getElementById('addPathName').focus();
+        }
+
+        function closeAddPathModal() {
+            document.getElementById('addPathModal').classList.remove('active');
+        }
+
+        function submitAddPath() {
+            const pathName = document.getElementById('addPathName').value.trim();
+            const type = document.getElementById('addPathModal').dataset.type;
+            const errorDiv = document.getElementById('addPathError');
+
+            if (!pathName) {
+                errorDiv.textContent = '경로명을 입력해주세요.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const existingPaths = Object.values(customPaths[type] || {});
+            if (existingPaths.includes(pathName)) {
+                errorDiv.textContent = '이미 존재하는 경로입니다.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            db.ref(`custom-paths/${type}`).push(pathName, function(error) {
+                if (error) {
+                    alert('저장 실패: ' + error.message);
+                } else {
+                    alert('✅ 경로가 추가되었습니다!');
+                    closeAddPathModal();
+                }
             });
         }
     </script>
