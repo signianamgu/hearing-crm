@@ -852,15 +852,15 @@
                     <td>${response.hearingAidExp || '-'}</td>
                     <td>${response.time || '-'}</td>
                     <td style="text-align: center;">
-                        <button class="btn-delete" style="background: #c8e6c9; color: #2e7d32; padding: 6px 12px;">인쇄</button>
+                        <button class="btn-print" style="background: #c8e6c9; color: #2e7d32; padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">인쇄</button>
                     </td>
                     <td style="text-align: center;">
                         <button class="btn-delete">삭제</button>
                     </td>
                 `;
 
-                const printBtn = row.querySelector('button:nth-of-type(1)');
-                const deleteBtn = row.querySelector('.btn-delete:last-of-type');
+                const printBtn = row.querySelector('.btn-print');
+                const deleteBtn = row.querySelector('.btn-delete');
                 const firebaseKey = response.firebaseKey;
 
                 printBtn.onclick = function(e) {
