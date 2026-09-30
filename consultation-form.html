@@ -234,93 +234,357 @@
                 <div class="message" id="message4"></div>
             </div>
 
-            <!-- Step 5: 난청 상담 정보 -->
+            <!-- Step 5: 난청 상담 설문 -->
             <div class="step-content" id="content5">
-                <h1>난청 상담 정보 🎧</h1>
+                <h1>난청 상담 설문 🎧</h1>
                 <p class="subtitle">청력 관련 정보를 입력해주세요</p>
 
-                <div class="section-title">난청 정보</div>
+                <!-- ① 난청 정보 -->
+                <div class="section-title">① 난청 정보</div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>난청 기간</label>
-                        <select id="hearingLossDuration">
-                            <option value="">선택</option>
-                            <option value="~1년">~1년</option>
-                            <option value="1~5년">1~5년</option>
-                            <option value="5~10년">5~10년</option>
-                            <option value="10년 이상">10년 이상</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>나쁜 귀</label>
-                        <select id="badEar">
-                            <option value="">선택</option>
-                            <option value="좌측">좌측</option>
-                            <option value="우측">우측</option>
-                            <option value="양쪽">양쪽</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label>난청을 느낀 지 얼마나 경과했나요?</label>
+                    <input type="text" id="hearingLossTime" placeholder="예: 10년 정도, 5년 정도">
                 </div>
 
                 <div class="form-group">
-                    <label>귀 관련 질환</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="tinnitus" name="earDisease" value="이명">
-                            <label for="tinnitus">이명</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="otitis" name="earDisease" value="중이염">
-                            <label for="otitis">중이염</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="surgery" name="earDisease" value="수술">
-                            <label for="surgery">수술</label>
-                        </div>
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="other" name="earDisease" value="기타">
-                            <label for="other">기타</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>청각장애등급</label>
-                    <select id="disabilityGrade">
-                        <option value="">선택</option>
-                        <option value="무">무</option>
-                        <option value="1등급">1등급</option>
-                        <option value="2등급">2등급</option>
-                        <option value="3등급">3등급</option>
-                        <option value="4등급">4등급</option>
-                        <option value="5등급">5등급</option>
-                        <option value="6등급">6등급</option>
-                    </select>
-                </div>
-
-                <div class="section-title">보청기 경험</div>
-
-                <div class="form-group">
-                    <label>보청기 경험</label>
+                    <label>난청이 어떻게 시작되었나요?</label>
                     <div class="radio-group">
                         <div class="radio-option">
-                            <input type="radio" id="noExp" name="hearingAidExp" value="무경험">
-                            <label for="noExp">무경험</label>
+                            <input type="radio" id="onset1" name="onset" value="갑작스럽게">
+                            <label for="onset1">갑작스럽게</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="wearing" name="hearingAidExp" value="현재착용">
-                            <label for="wearing">현재착용</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="trial" name="hearingAidExp" value="체험">
-                            <label for="trial">체험</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="failure" name="hearingAidExp" value="적응실패">
-                            <label for="failure">적응실패</label>
+                            <input type="radio" id="onset2" name="onset" value="서서히">
+                            <label for="onset2">서서히</label>
                         </div>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>현재 더 안 좋다고 느끼는 귀는?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="worse1" name="worse" value="좌측">
+                            <label for="worse1">좌측</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="worse2" name="worse" value="우측">
+                            <label for="worse2">우측</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="worse3" name="worse" value="비슷함">
+                            <label for="worse3">비슷함</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>이비인후과 진료 경험이 있으신가요?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="clinic1" name="clinic" value="있음" onchange="updateClinicDetail()">
+                            <label for="clinic1">있음</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="clinic2" name="clinic" value="없음" onchange="updateClinicDetail()">
+                            <label for="clinic2">없음</label>
+                        </div>
+                    </div>
+                    <div class="subquestion" id="clinicDetail" style="display: none; padding: 15px; background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 5px; margin-top: 10px;">
+                        <div class="form-group">
+                            <label>진단받은 귀 질환 (중복 선택):</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="disease1" name="earDisease" value="돌발성 난청">
+                                    <label for="disease1">돌발성 난청</label>
+                                </div>
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="disease2" name="earDisease" value="감각신경성 난청">
+                                    <label for="disease2">감각신경성 난청</label>
+                                </div>
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="disease3" name="earDisease" value="전음성 난청">
+                                    <label for="disease3">전음성 난청</label>
+                                </div>
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="disease4" name="earDisease" value="이명">
+                                    <label for="disease4">이명</label>
+                                </div>
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="disease5" name="earDisease" value="메니에르병">
+                                    <label for="disease5">메니에르병</label>
+                                </div>
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="disease6" name="earDisease" value="기타">
+                                    <label for="disease6">기타</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>최근에 청력검사를 받은 적이 있으신가요?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="test1" name="test" value="있음">
+                            <label for="test1">있음</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="test2" name="test" value="없음">
+                            <label for="test2">없음</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ② 현재 불편 -->
+                <div class="section-title">② 현재 가장 불편한 상황 (중복 선택)</div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="discomfort1" name="discomfort" value="TV 소리">
+                            <label for="discomfort1">TV 소리가 잘 안 들려요</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="discomfort2" name="discomfort" value="가족과 대화">
+                            <label for="discomfort2">가족과 대화할 때 자주 되묻게 돼요</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="discomfort3" name="discomfort" value="전화">
+                            <label for="discomfort3">전화 통화가 어려워요</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="discomfort4" name="discomfort" value="여러 사람 대화">
+                            <label for="discomfort4">여러 사람이 함께 이야기할 때 어려워요</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="discomfort5" name="discomfort" value="시끄러운 곳">
+                            <label for="discomfort5">시끄러운 곳(식당, 시장)에서 어려워요</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="discomfort6" name="discomfort" value="조용한 곳에서도">
+                            <label for="discomfort6">조용한 곳에서도 말소리가 안 들려요</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ③ 생활환경 -->
+                <div class="section-title">③ 생활환경</div>
+
+                <div class="form-group">
+                    <label>주로 누구와 대화하시나요?</label>
+                    <input type="text" id="mainContact" placeholder="예: 배우자, 자녀, 회사 동료 등">
+                </div>
+
+                <div class="form-group">
+                    <label>함께 사는 가족 구성</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="family1" name="family" value="혼자 사는 중">
+                            <label for="family1">혼자 사는 중</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="family2" name="family" value="배우자와 함께">
+                            <label for="family2">배우자와 함께</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="family3" name="family" value="자녀와 함께">
+                            <label for="family3">자녀와 함께</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="family4" name="family" value="기타">
+                            <label for="family4">기타</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>외출·모임 정도</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="activity1" name="activity" value="적음">
+                            <label for="activity1">적음</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="activity2" name="activity" value="보통">
+                            <label for="activity2">보통</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="activity3" name="activity" value="많음">
+                            <label for="activity3">많음</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ④ 보청기 경험 -->
+                <div class="section-title">④ 보청기 경험</div>
+
+                <div class="form-group">
+                    <label>보청기 사용 경험</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="exp1" name="experience" value="처음" onchange="updateExpType()">
+                            <label for="exp1">처음</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="exp2" name="experience" value="현재 사용 중" onchange="updateExpType()">
+                            <label for="exp2">현재 사용 중</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="exp3" name="experience" value="적응실패" onchange="updateExpType()">
+                            <label for="exp3">적응실패</label>
+                        </div>
+                    </div>
+                    <div class="subquestion" id="expDetail" style="display: none; padding: 15px; background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 5px; margin-top: 10px;">
+                        <div class="form-group">
+                            <label>제조사·모델명:</label>
+                            <input type="text" class="text-input" id="expProduct" placeholder="예: 시그니아 Nx">
+                        </div>
+                        <div class="form-group">
+                            <label>착용 방향:</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="direction1" name="direction" value="양쪽">
+                                    <label for="direction1">양쪽</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="direction2" name="direction" value="좌측">
+                                    <label for="direction2">좌측</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="direction3" name="direction" value="우측">
+                                    <label for="direction3">우측</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="currentExpOnly">
+                            <div class="form-group">
+                                <label>가장 불만이었던 점:</label>
+                                <input type="text" class="text-input" id="expDislike" placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <label>반대로 만족했던 점:</label>
+                                <input type="text" class="text-input" id="expSatisfy" placeholder="">
+                            </div>
+                        </div>
+                        <div id="failureExpOnly" style="display: none;">
+                            <div class="form-group">
+                                <label>적응에 실패한 이유:</label>
+                                <input type="text" class="text-input" id="failureReason" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ⑤ 귀 관련 증상 -->
+                <div class="section-title">⑤ 귀 관련 증상</div>
+
+                <div class="form-group">
+                    <label>이명 (귀에서 삐-, 윙- 하는 소리)</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="tin1" name="tinnitus" value="있음" onchange="toggleSubquestion('tinnitusDetail')">
+                            <label for="tin1">있음</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="tin2" name="tinnitus" value="없음" onchange="toggleSubquestion('tinnitusDetail')">
+                            <label for="tin2">없음</label>
+                        </div>
+                    </div>
+                    <div id="tinnitusDetail" style="display: none; padding: 15px; background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 5px; margin-top: 10px;">
+                        <div class="form-group">
+                            <label>이명의 위치:</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="tinnitus_loc1" name="tinnitusLoc" value="한쪽 귀">
+                                    <label for="tinnitus_loc1">한쪽 귀</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="tinnitus_loc2" name="tinnitusLoc" value="양쪽">
+                                    <label for="tinnitus_loc2">양쪽</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>이명의 음질:</label>
+                            <input type="text" class="text-input" id="tinnitusSound" placeholder="예: 삐, 윙, 매미 소리 등">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>어지럼증이 있나요?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="dizz1" name="dizzy" value="있음">
+                            <label for="dizz1">있음</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="dizz2" name="dizzy" value="없음">
+                            <label for="dizz2">없음</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>귀가 먹먹하거나 막힌 느낌이 있나요?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="full1" name="fullness" value="있음">
+                            <label for="full1">있음</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="full2" name="fullness" value="없음">
+                            <label for="full2">없음</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ⑥ 청각장애 -->
+                <div class="section-title">⑥ 청각장애 등록</div>
+
+                <div class="form-group">
+                    <label>청각장애 등록이 되어 있으신가요?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="reg1" name="registration" value="있음">
+                            <label for="reg1">있음</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="reg2" name="registration" value="없음">
+                            <label for="reg2">없음</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>장애인 보조기기 급여를 받아보신 적이 있으신가요?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="subsidy1" name="subsidy" value="있음" onchange="toggleSubquestion('subsidyDate')">
+                            <label for="subsidy1">있음</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="subsidy2" name="subsidy" value="없음" onchange="toggleSubquestion('subsidyDate')">
+                            <label for="subsidy2">없음</label>
+                        </div>
+                    </div>
+                    <div id="subsidyDate" style="display: none; padding: 15px; background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 5px; margin-top: 10px;">
+                        <div class="form-group">
+                            <label>급여 받은 날짜:</label>
+                            <input type="text" class="text-input" id="subsidyDateInput" placeholder="예: 2020년 5월">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ⑦ 목표 -->
+                <div class="section-title">⑦ 보청기 사용 목표</div>
+
+                <div class="form-group">
+                    <label>보청기를 착용해서 가장 좋아지고 싶은 것은 무엇인가요?</label>
+                    <textarea id="goal" rows="4" placeholder="예: 가족과의 대화를 편하게 하고 싶습니다" style="width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; font-family: inherit;"></textarea>
                 </div>
 
                 <div class="button-group">
@@ -714,12 +978,47 @@
             document.getElementById('nextBtn3').disabled = false;
         }
 
+        function updateClinicDetail() {
+            const clinic = document.querySelector('input[name="clinic"]:checked').value;
+            const detail = document.getElementById('clinicDetail');
+            if (clinic === '있음') {
+                detail.style.display = 'block';
+            } else {
+                detail.style.display = 'none';
+            }
+        }
+
+        function toggleSubquestion(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = element.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function updateExpType() {
+            const expType = document.querySelector('input[name="experience"]:checked').value;
+            const currentOnly = document.getElementById('currentExpOnly');
+            const failureOnly = document.getElementById('failureExpOnly');
+            const expDetail = document.getElementById('expDetail');
+
+            if (expType === '처음') {
+                expDetail.style.display = 'none';
+                currentOnly.style.display = 'none';
+                failureOnly.style.display = 'none';
+            } else if (expType === '현재 사용 중') {
+                expDetail.style.display = 'block';
+                currentOnly.style.display = 'block';
+                failureOnly.style.display = 'none';
+            } else if (expType === '적응실패') {
+                expDetail.style.display = 'block';
+                currentOnly.style.display = 'none';
+                failureOnly.style.display = 'block';
+            }
+        }
+
         function submitForm() {
             const earDiseases = Array.from(document.querySelectorAll('input[name="earDisease"]:checked')).map(el => el.value);
-            const hearingAidExp = document.querySelector('input[name="hearingAidExp"]:checked')?.value || '';
-            const duration = document.getElementById('hearingLossDuration').value;
-            const badEar = document.getElementById('badEar').value;
-            const disabilityGrade = document.getElementById('disabilityGrade').value;
+            const discomforts = Array.from(document.querySelectorAll('input[name="discomfort"]:checked')).map(el => el.value);
 
             const responseData = {
                 age: formData.age,
@@ -731,11 +1030,31 @@
                 phone: formData.phone,
                 birthdate: formData.birthdate,
                 address: formData.address,
-                duration: duration,
-                badEar: badEar,
+                hearingLossTime: document.getElementById('hearingLossTime').value,
+                onset: document.querySelector('input[name="onset"]:checked')?.value || '',
+                worse: document.querySelector('input[name="worse"]:checked')?.value || '',
+                clinic: document.querySelector('input[name="clinic"]:checked')?.value || '',
                 earDiseases: earDiseases,
-                disabilityGrade: disabilityGrade,
-                hearingAidExp: hearingAidExp,
+                test: document.querySelector('input[name="test"]:checked')?.value || '',
+                discomforts: discomforts,
+                mainContact: document.getElementById('mainContact').value,
+                family: document.querySelector('input[name="family"]:checked')?.value || '',
+                activity: document.querySelector('input[name="activity"]:checked')?.value || '',
+                experience: document.querySelector('input[name="experience"]:checked')?.value || '',
+                expProduct: document.getElementById('expProduct').value,
+                direction: document.querySelector('input[name="direction"]:checked')?.value || '',
+                expDislike: document.getElementById('expDislike').value,
+                expSatisfy: document.getElementById('expSatisfy').value,
+                failureReason: document.getElementById('failureReason').value,
+                tinnitus: document.querySelector('input[name="tinnitus"]:checked')?.value || '',
+                tinnitusLoc: document.querySelector('input[name="tinnitusLoc"]:checked')?.value || '',
+                tinnitusSound: document.getElementById('tinnitusSound').value,
+                dizzy: document.querySelector('input[name="dizzy"]:checked')?.value || '',
+                fullness: document.querySelector('input[name="fullness"]:checked')?.value || '',
+                registration: document.querySelector('input[name="registration"]:checked')?.value || '',
+                subsidy: document.querySelector('input[name="subsidy"]:checked')?.value || '',
+                subsidyDate: document.getElementById('subsidyDateInput').value,
+                goal: document.getElementById('goal').value,
                 timestamp: new Date().toISOString(),
                 date: new Date().toLocaleDateString('ko-KR'),
                 time: new Date().toLocaleTimeString('ko-KR')
