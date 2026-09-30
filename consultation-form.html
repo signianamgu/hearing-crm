@@ -6,8 +6,6 @@
     <title>고객 상담 정보 - 시그니아 대구남구센터</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
@@ -365,7 +363,6 @@
 
                 <div class="button-group">
                     <button class="btn btn-primary btn-small" onclick="printResult()">🖨️ 인쇄</button>
-                    <button class="btn btn-primary btn-small" onclick="downloadPDF()">📄 PDF 다운로드</button>
                     <button class="btn btn-secondary" onclick="resetForm()">다시 시작</button>
                 </div>
             </div>
@@ -477,7 +474,6 @@
             <div id="detailContent" style="text-align: left; margin-bottom: 20px;"></div>
             <div class="modal-buttons">
                 <button class="btn btn-primary btn-small" onclick="printDetailResult()">🖨️ 인쇄</button>
-                <button class="btn btn-primary btn-small" onclick="downloadDetailPDF()">📄 PDF</button>
                 <button class="btn-modal-cancel" onclick="closeDetailModal()">닫기</button>
             </div>
         </div>
@@ -780,97 +776,6 @@
             window.print();
         }
 
-        // PDF 다운로드 - jsPDF 직접 사용
-        function downloadPDF() {
-            const data = lastFormData;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            const pageHeight = doc.internal.pageSize.getHeight();
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const margin = 12;
-            let yPos = margin + 8;
-
-            // 제목
-            doc.setFontSize(13);
-            doc.setFont(undefined, 'bold');
-            doc.text('📋 상담 결과 요약', margin, yPos);
-            yPos += 8;
-
-            // 기본정보
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            const colWidth = (pageWidth - margin * 2) / 2 - 2;
-            const col1X = margin;
-            const col2X = margin + colWidth + 4;
-
-            // 행 1: 성명 / 나이
-            doc.setFont(undefined, 'bold');
-            doc.text('성명:', col1X, yPos);
-            doc.setFont(undefined, 'normal');
-            doc.text(String(data.name || '-').substring(0, 20), col1X + 12, yPos);
-            doc.setFont(undefined, 'bold');
-            doc.text('나이:', col2X, yPos);
-            doc.setFont(undefined, 'normal');
-            doc.text(String(data.age || '-'), col2X + 10, yPos);
-            yPos += 5;
-
-            // 행 2: 전화 / 성별
-            doc.setFont(undefined, 'bold');
-            doc.text('전화:', col1X, yPos);
-            doc.setFont(undefined, 'normal');
-            doc.text(String(data.phone || '-').substring(0, 20), col1X + 12, yPos);
-            doc.setFont(undefined, 'bold');
-            doc.text('성별:', col2X, yPos);
-            doc.setFont(undefined, 'normal');
-            doc.text(String(data.gender || '-'), col2X + 10, yPos);
-            yPos += 5;
-
-            // 행 3: 생년월일
-            doc.setFont(undefined, 'bold');
-            doc.text('생년월일:', col1X, yPos);
-            doc.setFont(undefined, 'normal');
-            doc.text(String(data.birthdate || '-'), col1X + 22, yPos);
-            yPos += 5;
-
-            // 행 4: 주소
-            doc.setFont(undefined, 'bold');
-            doc.text('주소:', col1X, yPos);
-            doc.setFont(undefined, 'normal');
-            const addressLines = doc.splitTextToSize(String(data.address || '-'), colWidth * 2 - 5);
-            doc.text(addressLines, col1X + 12, yPos);
-            yPos += addressLines.length * 4 + 2;
-
-            // 구분선
-            doc.setDrawColor(200, 200, 200);
-            doc.line(margin, yPos, pageWidth - margin, yPos);
-            yPos += 5;
-
-            // 상담정보
-            doc.setFont(undefined, 'bold');
-            doc.text('방문경로:', col1X, yPos);
-            doc.setFont(undefined, 'normal');
-            doc.text(`${String(data.path || '-')} > ${String(data.detailedPath || '-')}`, col1X + 22, yPos);
-            yPos += 5;
-
-            doc.setFont(undefined, 'bold');
-            doc.text('난청기간:', col1X, yPos);
-            doc.setFont(undefined, 'normal');
-            doc.text(String(data.duration || '-'), col1X + 22, yPos);
-            yPos += 5;
-
-            doc.setFont(undefined, 'bold');
-            doc.text('나쁜 귀:', col1X, yPos);
-            doc.setFont(undefined, 'normal');
-            doc.text(String(data.badEar || '-'), col1X + 16, yPos);
-            yPos += 5;
-
-            doc.setFont(undefined, 'bold');
-            doc.text('보청기경험:', col1X, yPos);
-            doc.setFont(undefined, 'normal');
-            doc.text(String(data.hearingAidExp || '-'), col1X + 25, yPos);
-
-            // PDF 저장
-            doc.save(`상담결과_${data.name || '고객'}_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}.pdf`);
-        }
 
         function resetForm() {
             selectedPath = null;
