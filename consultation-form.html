@@ -168,21 +168,24 @@
         /* Shared A4 report for completion and administrator printing. */
         #consultationPrintReport { display: none; }
         @media print {
-            @page { size: A4 portrait; margin: 10mm; }
+            @page { size: A4 portrait; margin: 8mm; }
             html, body { display: block !important; width: auto !important; height: auto !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; background: #fff !important; }
             body > *:not(#consultationPrintReport) { display: none !important; }
-            #consultationPrintReport { display: block !important; width: 100%; color: #111; font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; font-size: 11pt; line-height: 1.5; }
+            #consultationPrintReport { display: block !important; width: 100%; color: #111; font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; font-size: 10pt; line-height: 1.3; }
             #consultationPrintReport * { box-sizing: border-box; }
-            #consultationPrintReport header { border-bottom: 2pt solid #222; padding-bottom: 4mm; margin-bottom: 4mm; }
-            #consultationPrintReport h1 { font-size: 22pt; color: #111; margin: 0 0 1mm; }
+            #consultationPrintReport header { border-bottom: 2pt solid #222; padding-bottom: 2mm; margin-bottom: 2.5mm; }
+            #consultationPrintReport h1 { font-size: 18pt; color: #111; margin: 0 0 1mm; }
             #consultationPrintReport header p { font-size: 10pt; color: #555; margin: 0; }
-            #consultationPrintReport section { margin: 0 0 3mm; }
-            #consultationPrintReport h2 { display: block !important; font-size: 12pt; color: #111; margin: 0; padding: 1.5mm 2.5mm; border: 1px solid #aaa; border-bottom: 0; background: #eee; break-after: avoid; }
+            #consultationPrintReport section { margin: 0 0 2mm; break-inside: avoid; }
+            #consultationPrintReport .report-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 0 3mm; align-items: start; }
+            #consultationPrintReport .report-columns th { width: 25mm; }
+            #consultationPrintReport { overflow: visible; }
+            #consultationPrintReport h2 { display: block !important; font-size: 10.5pt; color: #111; margin: 0; padding: 1mm 2mm; border: 1px solid #aaa; border-bottom: 0; background: #eee; break-after: avoid; }
             #consultationPrintReport table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-            #consultationPrintReport th, #consultationPrintReport td { border: 1px solid #aaa; padding: 1.8mm 2.5mm; vertical-align: top; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; }
-            #consultationPrintReport th { width: 32mm; font-size: 10pt; font-weight: 600; background: #f5f5f5; }
+            #consultationPrintReport th, #consultationPrintReport td { border: 1px solid #aaa; padding: 1mm 2mm; vertical-align: top; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; }
+            #consultationPrintReport th { width: 32mm; font-size: 9pt; font-weight: 600; background: #f5f5f5; }
             #consultationPrintReport tr { break-inside: avoid; }
-            #consultationPrintReport footer { border-top: 1px solid #aaa; padding-top: 2mm; font-size: 9pt; color: #555; }
+            #consultationPrintReport footer { border-top: 1px solid #aaa; padding-top: 1mm; font-size: 8pt; color: #555; }
         }
 
     </style>
@@ -1245,7 +1248,10 @@
                 ['⑥ 청각장애 및 급여', [['장애 등록 / 급여', value('registration') + ' / ' + value('subsidy')], ['급여 수령 날짜', value('subsidyDate')]]],
                 ['⑦ 보청기 사용 목표', [['사용 목표', value('goal')]]]
             ];
-            for (const [heading, rows] of sections) {
+            const columns = document.createElement('div');
+            columns.className = 'report-columns';
+            report.appendChild(columns);
+            for (const [sectionIndex, [heading, rows]] of sections.entries()) {
                 const section = document.createElement('section');
                 const h2 = document.createElement('h2');
                 h2.textContent = heading;
@@ -1263,13 +1269,32 @@
                 }
                 table.appendChild(tbody);
                 section.append(h2, table);
-                report.appendChild(section);
+                if (sectionIndex === 0) report.insertBefore(section, columns);
+                else if (sectionIndex === sections.length - 1) report.appendChild(section);
+                else columns.appendChild(section);
             }
             const footer = document.createElement('footer');
             footer.textContent = '저장시간: ' + value('time');
             report.appendChild(footer);
+            report.style.zoom = '';
+            report.style.width = '';
         }
-        window.addEventListener('beforeprint', prepareConsultationPrint);
+        function fitConsultationToOnePage() {
+            prepareConsultationPrint();
+            const report = document.getElementById('consultationPrintReport');
+            if (!report || !window.matchMedia('print').matches) return;
+            // Reserve 2 mm below the report to avoid rounding onto a second sheet.
+            const availableHeight = 279 * 96 / 25.4;
+            let scale = 1;
+            for (let pass = 0; pass < 6; pass++) {
+                const height = report.getBoundingClientRect().height;
+                if (height <= availableHeight || height === 0) break;
+                scale *= availableHeight / height * 0.99;
+                report.style.zoom = String(scale);
+                report.style.width = (100 / scale) + '%';
+            }
+        }
+        window.addEventListener('beforeprint', fitConsultationToOnePage);
 
         // 인쇄 기능
         function printResult() {
