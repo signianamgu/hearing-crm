@@ -171,19 +171,21 @@
             @page { size: A4 portrait; margin: 8mm; }
             html, body { display: block !important; width: auto !important; height: auto !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; background: #fff !important; }
             body > *:not(#consultationPrintReport) { display: none !important; }
-            #consultationPrintReport { display: block !important; width: 100%; color: #111; font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; font-size: 10pt; line-height: 1.3; }
+            #consultationPrintReport { display: block !important; width: 100%; color: #111; font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; font-size: 8.5pt; line-height: 1.2; }
             #consultationPrintReport * { box-sizing: border-box; }
-            #consultationPrintReport header { border-bottom: 2pt solid #222; padding-bottom: 2mm; margin-bottom: 2.5mm; }
-            #consultationPrintReport h1 { font-size: 18pt; color: #111; margin: 0 0 1mm; }
-            #consultationPrintReport header p { font-size: 10pt; color: #555; margin: 0; }
-            #consultationPrintReport section { margin: 0 0 2mm; break-inside: avoid; }
+            #consultationPrintReport header { border-bottom: 2pt solid #222; padding-bottom: 1.5mm; margin-bottom: 1.5mm; }
+            #consultationPrintReport h1 { font-size: 15pt; color: #111; margin: 0 0 1mm; }
+            #consultationPrintReport header p { font-size: 8pt; color: #555; margin: 0; }
+            #consultationPrintReport section { margin: 0 0 1.2mm; break-inside: avoid; }
             #consultationPrintReport .report-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 0 3mm; align-items: start; }
             #consultationPrintReport .report-columns th { width: 25mm; }
             #consultationPrintReport { overflow: visible; }
-            #consultationPrintReport h2 { display: block !important; font-size: 10.5pt; color: #111; margin: 0; padding: 1mm 2mm; border: 1px solid #aaa; border-bottom: 0; background: #eee; break-after: avoid; }
+            #consultationPrintReport p { margin: 0 !important; }
+            #consultationPrintReport th, #consultationPrintReport td { font-size: inherit; }
+            #consultationPrintReport h2 { display: block !important; font-size: 9pt; color: #111; margin: 0; padding: 0.7mm 1.5mm; border: 1px solid #aaa; border-bottom: 0; background: #eee; break-after: avoid; }
             #consultationPrintReport table { width: 100%; border-collapse: collapse; table-layout: fixed; }
             #consultationPrintReport th, #consultationPrintReport td { border: 1px solid #aaa; padding: 1mm 2mm; vertical-align: top; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; }
-            #consultationPrintReport th { width: 32mm; font-size: 9pt; font-weight: 600; background: #f5f5f5; }
+            #consultationPrintReport th { width: 32mm; font-size: 8pt; font-weight: 600; background: #f5f5f5; }
             #consultationPrintReport tr { break-inside: avoid; }
             #consultationPrintReport footer { border-top: 1px solid #aaa; padding-top: 1mm; font-size: 8pt; color: #555; }
         }
@@ -1282,19 +1284,41 @@
         function fitConsultationToOnePage() {
             prepareConsultationPrint();
             const report = document.getElementById('consultationPrintReport');
-            if (!report || !window.matchMedia('print').matches) return;
-            // Reserve 2 mm below the report to avoid rounding onto a second sheet.
-            const availableHeight = 279 * 96 / 25.4;
-            let scale = 1;
-            for (let pass = 0; pass < 6; pass++) {
+            if (!report) return;
+            // Apply the actual print styles while measuring, even when beforeprint
+            // fires before the browser switches its media queries to print.
+            let measureStyle = document.getElementById('consultationPrintMeasureStyle');
+            if (!measureStyle) {
+                measureStyle = document.createElement('style');
+                measureStyle.id = 'consultationPrintMeasureStyle';
+                const source = Array.from(document.querySelectorAll('style')).find(
+                    style => style.textContent.includes('/* Shared A4 report')
+                );
+                const printBlock = source.textContent.split('/* Shared A4 report')[1];
+                measureStyle.textContent = printBlock.slice(
+                    printBlock.indexOf('@media print {') + '@media print {'.length,
+                    printBlock.lastIndexOf('}')
+                );
+                document.head.appendChild(measureStyle);
+            }
+            const availableHeight = 260 * 96 / 25.4;
+            let scale = 0.85;
+            report.style.width = (194 / scale) + 'mm';
+            report.style.zoom = String(scale);
+            for (let pass = 0; pass < 8; pass++) {
                 const height = report.getBoundingClientRect().height;
                 if (height <= availableHeight || height === 0) break;
-                scale *= availableHeight / height * 0.99;
+                scale *= availableHeight / height * 0.97;
                 report.style.zoom = String(scale);
-                report.style.width = (100 / scale) + '%';
+                report.style.width = (194 / scale) + 'mm';
             }
         }
         window.addEventListener('beforeprint', fitConsultationToOnePage);
+        window.addEventListener('afterprint', () => {
+            document.getElementById('consultationPrintMeasureStyle')?.remove();
+            const report = document.getElementById('consultationPrintReport');
+            if (report) { report.style.zoom = ''; report.style.width = ''; }
+        });
 
         // 인쇄 기능
         function printResult() {
