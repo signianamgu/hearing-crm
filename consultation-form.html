@@ -311,9 +311,13 @@
                                     <label for="disease5">메니에르병</label>
                                 </div>
                                 <div class="checkbox-option">
-                                    <input type="checkbox" id="disease6" name="earDisease" value="기타">
+                                    <input type="checkbox" id="disease6" name="earDisease" value="기타" onchange="updateOtherDisease()">
                                     <label for="disease6">기타</label>
                                 </div>
+                            </div>
+                            <div id="otherDiseaseDetail" style="display: none; margin-top: 12px;">
+                                <label for="otherDiseaseText">기타 진단 내용을 직접 적어주세요</label>
+                                <input type="text" id="otherDiseaseText" placeholder="진단받은 귀 질환 또는 진료 내용을 입력하세요">
                             </div>
                         </div>
                     </div>
@@ -374,22 +378,22 @@
                 </div>
 
                 <div class="form-group">
-                    <label>함께 사는 가족 구성</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="family1" name="family" value="혼자 사는 중">
-                            <label for="family1">혼자 사는 중</label>
+                    <label>함께 사는 가족 구성 (중복 선택 가능)</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="family1" name="family" value="본인">
+                            <label for="family1">본인</label>
                         </div>
-                        <div class="radio-option">
-                            <input type="radio" id="family2" name="family" value="배우자와 함께">
-                            <label for="family2">배우자와 함께</label>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="family2" name="family" value="자녀">
+                            <label for="family2">자녀</label>
                         </div>
-                        <div class="radio-option">
-                            <input type="radio" id="family3" name="family" value="자녀와 함께">
-                            <label for="family3">자녀와 함께</label>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="family3" name="family" value="배우자">
+                            <label for="family3">배우자</label>
                         </div>
-                        <div class="radio-option">
-                            <input type="radio" id="family4" name="family" value="기타">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="family4" name="family" value="기타">
                             <label for="family4">기타</label>
                         </div>
                     </div>
@@ -1017,6 +1021,19 @@
             }
         }
 
+        function updateOtherDisease() {
+            const checked = document.getElementById('disease6').checked;
+            document.getElementById('otherDiseaseDetail').style.display = checked ? 'block' : 'none';
+            if (!checked) document.getElementById('otherDiseaseText').value = '';
+        }
+
+        function collectEarDiseases() {
+            if (document.querySelector('input[name="clinic"]:checked')?.value !== '있음') return [];
+            const other = document.getElementById('otherDiseaseText').value.trim();
+            return Array.from(document.querySelectorAll('input[name="earDisease"]:checked'))
+                .map(el => el.value === '기타' && other ? '기타: ' + other : el.value);
+        }
+
         function toggleSubquestion(id) {
             const element = document.getElementById(id);
             if (element) {
@@ -1046,7 +1063,7 @@
         }
 
         function submitForm() {
-            const earDiseases = Array.from(document.querySelectorAll('input[name="earDisease"]:checked')).map(el => el.value);
+            const earDiseases = collectEarDiseases();
             const discomforts = Array.from(document.querySelectorAll('input[name="discomfort"]:checked')).map(el => el.value);
 
             const responseData = {
@@ -1067,7 +1084,7 @@
                 test: document.querySelector('input[name="test"]:checked')?.value || '',
                 discomforts: discomforts,
                 mainContact: document.getElementById('mainContact').value,
-                family: document.querySelector('input[name="family"]:checked')?.value || '',
+                family: Array.from(document.querySelectorAll('input[name="family"]:checked')).map(el => el.value).join(', '),
                 activity: document.querySelector('input[name="activity"]:checked')?.value || '',
                 experience: document.querySelector('input[name="experience"]:checked')?.value || '',
                 expProduct: document.getElementById('expProduct').value,
@@ -1286,7 +1303,9 @@
             document.querySelectorAll('input[name="clinic"]').forEach(el => el.checked = false);
             document.querySelectorAll('input[name="earDisease"]').forEach(el => el.checked = false);
             document.getElementById('clinicDetail').style.display = 'none';
-            document.getElementById('test').value = '';
+            document.getElementById('otherDiseaseText').value = '';
+            updateOtherDisease();
+            document.querySelectorAll('input[name="test"]').forEach(el => el.checked = false);
 
             // Step 5 필드 - 현재 불편
             document.querySelectorAll('input[name="discomfort"]').forEach(el => el.checked = false);
